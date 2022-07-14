@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IcarusModManager", "IcarusModManager\IcarusModManager.csproj", "{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B} = {DC03779A-E493-43B6-AB7D-9A056ACF005B}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAssetAPI", "UAssetAPI\UAssetAPI\UAssetAPI.csproj", "{178417EC-1177-413E-BE85-C83AECD64279}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetPak", "NetPak\NetPak\NetPak.csproj", "{DC03779A-E493-43B6-AB7D-9A056ACF005B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}.Debug|Any CPU.Build.0 = Debug|x64
+		{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}.Debug|x64.ActiveCfg = Debug|x64
+		{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}.Debug|x64.Build.0 = Debug|x64
+		{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}.Release|Any CPU.ActiveCfg = Release|x64
+		{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}.Release|Any CPU.Build.0 = Release|x64
+		{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}.Release|x64.ActiveCfg = Release|x64
+		{408C7A84-D6C9-4C21-A6D0-52B56B02C56F}.Release|x64.Build.0 = Release|x64
+		{178417EC-1177-413E-BE85-C83AECD64279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{178417EC-1177-413E-BE85-C83AECD64279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{178417EC-1177-413E-BE85-C83AECD64279}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{178417EC-1177-413E-BE85-C83AECD64279}.Debug|x64.Build.0 = Debug|Any CPU
+		{178417EC-1177-413E-BE85-C83AECD64279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{178417EC-1177-413E-BE85-C83AECD64279}.Release|Any CPU.Build.0 = Release|Any CPU
+		{178417EC-1177-413E-BE85-C83AECD64279}.Release|x64.ActiveCfg = Release|Any CPU
+		{178417EC-1177-413E-BE85-C83AECD64279}.Release|x64.Build.0 = Release|Any CPU
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B}.Debug|Any CPU.Build.0 = Debug|x64
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B}.Debug|x64.ActiveCfg = Debug|x64
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B}.Debug|x64.Build.0 = Debug|x64
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B}.Release|Any CPU.ActiveCfg = Release|x64
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B}.Release|Any CPU.Build.0 = Release|x64
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B}.Release|x64.ActiveCfg = Release|x64
+		{DC03779A-E493-43B6-AB7D-9A056ACF005B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F031BD1A-1CA5-4821-B6C3-ABFA89BBF67E}
+	EndGlobalSection
+EndGlobal

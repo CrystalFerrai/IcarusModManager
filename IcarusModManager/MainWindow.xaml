@@ -1,0 +1,468 @@
+﻿<!--
+Copyright 2022 Crystal Ferrai
+	
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+	
+	http://www.apache.org/licenses/LICENSE-2.0
+	
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<Window
+    x:Class="IcarusModManager.MainWindow"
+    x:ClassModifier="internal"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    mc:Ignorable="d"
+    xmlns:local="clr-namespace:IcarusModManager"
+	xmlns:model="clr-namespace:IcarusModManager.Model"
+	xmlns:c="clr-namespace:IcarusModManager.Converters"
+    Title="Icarus Mod Manager"
+    Width="600"
+    Height="800"
+	MinWidth="350"
+	MinHeight="280"
+	AllowDrop="True"
+	IsEnabled="{Binding IsInstalling, Converter={x:Static c:InverseBoolConverter.Instance}}"
+	Style="{StaticResource {x:Type Window}}"
+	d:DataContext="{d:DesignInstance Type={x:Type local:MainWindowVM}, IsDesignTimeCreatable=False}">
+    <Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="10" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="10" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="10" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="10" />
+			<RowDefinition Height="auto" />
+		</Grid.RowDefinitions>
+		
+		<!-- Row 0: Header -->
+		<TextBlock
+			Margin="10 10 10 0"
+			TextWrapping="Wrap"
+			Text="Configure the mods you want to use. The order of the list represents the load order of the mods." />
+
+		<!-- Row 2: Mod List Buttons -->
+		<Grid
+			Grid.Row="2"
+			Margin="10 0">
+			<Button
+				HorizontalAlignment="Center"
+				Width="200"
+				Command="{Binding AddCommand}">
+				<Grid
+					HorizontalAlignment="Center">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="20" />
+						<ColumnDefinition Width="5" />
+						<ColumnDefinition Width="auto" />
+						<ColumnDefinition Width="10" />
+					</Grid.ColumnDefinitions>
+					<Image
+						VerticalAlignment="Center"
+						Stretch="None"
+						Source="{x:Static local:Images+ActionIcons.Add}" />
+					<TextBlock
+						Grid.Column="2"
+						VerticalAlignment="Center"
+						Text="Add Mods"
+						ToolTip="Press to select mod files to add. You can also drop mod files anywhere in the application to add them." />
+				</Grid>
+			</Button>
+		</Grid>
+
+		<!-- Row 4: Main Content -->
+		<Border
+			Grid.Row="4"
+			BorderBrush="#ff808080"
+			BorderThickness="1"
+			Background="#ff101010">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="5" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="5" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+				
+				<!-- Row 2: Mod List Header -->
+				<Grid
+					Grid.Row="2"
+					Margin="3 0">
+
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="24" />
+						<ColumnDefinition Width="1" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="1" />
+						<ColumnDefinition Width="60" />
+						<ColumnDefinition Width="1" />
+						<ColumnDefinition Width="100" />
+						<ColumnDefinition Width="1" />
+						<ColumnDefinition Width="25" />
+						<ColumnDefinition Width="auto" />
+					</Grid.ColumnDefinitions>
+
+					<Grid.Resources>
+						<Style TargetType="{x:Type Rectangle}">
+							<Setter Property="Width" Value="1" />
+							<Setter Property="StrokeThickness" Value="0" />
+							<Setter Property="Fill"	Value="#ff606060" />
+						</Style>
+						<Style TargetType="{x:Type TextBlock}">
+							<Setter Property="Margin" Value="5 2" />
+						</Style>
+					</Grid.Resources>
+
+					<TextBlock
+						Text="En"
+						ToolTip="Enabled" />
+
+					<Rectangle
+						Grid.Column="1" />
+
+					<TextBlock
+						Grid.Column="2"
+						Text="Name" />
+
+					<Rectangle
+						Grid.Column="3" />
+
+					<TextBlock
+						Grid.Column="4"
+						Text="Version" />
+
+					<Rectangle
+						Grid.Column="5" />
+
+					<TextBlock
+						Grid.Column="6"
+						Text="Reorder" />
+
+					<Rectangle
+						Grid.Column="7" />
+
+					<TextBlock
+						Grid.Column="8"
+						Text="Rm"
+						ToolTip="Remove" />
+
+					<FrameworkElement
+						Grid.Column="9"
+						Width="17"
+						Visibility="{Binding ComputedVerticalScrollBarVisibility, ElementName=mScrollViewer}" />
+				</Grid>
+
+				<!-- Row 4: Mod List -->
+				<ScrollViewer
+					x:Name="mScrollViewer"
+					Grid.Row="4"
+					VerticalScrollBarVisibility="Auto"
+					HorizontalScrollBarVisibility="Hidden">
+					<ItemsControl
+						ItemsSource="{Binding ModList}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate
+								DataType="{x:Type model:ModData}">
+								<Grid
+									Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type ScrollContentPresenter}}}">
+									<Border
+										Margin="1 0 1 5"
+										Padding="1 5"
+										BorderThickness="1"
+										CornerRadius="2"
+										ToolTipService.InitialShowDelay="500">
+										<Border.Style>
+											<Style TargetType="{x:Type Border}">
+												<Setter Property="BorderBrush" Value="#ff606060" />
+												<Setter Property="Background" Value="#ff303030" />
+												<Style.Triggers>
+													<Trigger Property="IsMouseOver" Value="True">
+														<Setter Property="BorderBrush" Value="#ff808080" />
+														<Setter Property="Background" Value="#ff343434" />
+													</Trigger>
+												</Style.Triggers>
+											</Style>
+										</Border.Style>
+										<Border.ToolTip>
+											<ToolTip
+												Width="400"
+												HorizontalContentAlignment="Stretch">
+												<Grid>
+													<Grid.RowDefinitions>
+														<RowDefinition Height="auto" />
+														<RowDefinition Height="auto" />
+														<RowDefinition Height="1" />
+														<RowDefinition Height="auto" />
+													</Grid.RowDefinitions>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="*" />
+													</Grid.ColumnDefinitions>
+
+													<TextBlock
+														HorizontalAlignment="Left"
+														Margin="10"
+														FontWeight="Bold"
+														Text="{Binding Name}" />
+
+													<TextBlock
+														HorizontalAlignment="Right"
+														Margin="10">
+														<Run Text="Version " /><Run Text="{Binding Version}" />
+														<TextBlock.Style>
+															<Style TargetType="{x:Type FrameworkElement}">
+																<Setter Property="Visibility" Value="Visible" />
+																<Style.Triggers>
+																	<DataTrigger Binding="{Binding Version}" Value="{x:Null}">
+																		<Setter Property="Visibility" Value="Hidden" />
+																	</DataTrigger>
+																</Style.Triggers>
+															</Style>
+														</TextBlock.Style>
+													</TextBlock>
+
+													<TextBlock
+														Grid.Row="1"
+														Margin="10 0 10 10"
+														HorizontalAlignment="Right"
+														Foreground="#ffc0c0c0"
+														Text="{Binding LastModifiedTime, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" />
+
+													<TextBlock
+														Grid.Row="1"
+														HorizontalAlignment="Left"
+														Margin="10 0 10 10"
+														FontStyle="Italic">
+														<Run Text="by " /><Run Text="{Binding Author}" />
+													</TextBlock>
+
+													<Rectangle
+														Grid.Row="2"
+														StrokeThickness="0"
+														Fill="#ff606060" />
+
+													<TextBlock
+														Grid.Row="3"
+														Margin="10"
+														TextWrapping="Wrap"
+														Text="{Binding Description}" />
+												</Grid>
+											</ToolTip>
+										</Border.ToolTip>
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="24" />
+												<ColumnDefinition Width="1" />
+												<ColumnDefinition Width="*" />
+												<ColumnDefinition Width="1" />
+												<ColumnDefinition Width="60" />
+												<ColumnDefinition Width="1" />
+												<ColumnDefinition Width="100" />
+												<ColumnDefinition Width="1" />
+												<ColumnDefinition Width="25" />
+											</Grid.ColumnDefinitions>
+
+											<Grid.Resources>
+												<Style TargetType="{x:Type TextBlock}">
+													<Setter Property="Margin" Value="5 2" />
+													<Setter Property="VerticalAlignment" Value="Center" />
+												</Style>
+												<Style TargetType="{x:Type CheckBox}" BasedOn="{StaticResource {x:Type CheckBox}}">
+													<Setter Property="Margin" Value="2 2 2 1" />
+													<Setter Property="VerticalAlignment" Value="Center" />
+												</Style>
+												<Style TargetType="{x:Type Rectangle}">
+													<Setter Property="Width" Value="1" />
+													<Setter Property="StrokeThickness" Value="0" />
+													<Setter Property="Fill"	Value="#ff606060" />
+												</Style>
+												<Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+													<Setter Property="MinWidth" Value="0" />
+													<Setter Property="MinHeight" Value="0" />
+													<Setter Property="BorderBrush" Value="Transparent" />
+													<Setter Property="Padding" Value="2 1 1 1" />
+													<Setter Property="Margin" Value="1 0" />
+													<Setter Property="HorizontalContentAlignment" Value="Center" />
+													<Setter Property="VerticalContentAlignment" Value="Center" />
+													<Setter Property="ToolTipService.InitialShowDelay" Value="500" />
+													<Style.Triggers>
+														<Trigger Property="IsEnabled" Value="False">
+															<Setter Property="Opacity" Value="0.3" />
+														</Trigger>
+													</Style.Triggers>
+												</Style>
+											</Grid.Resources>
+								
+											<CheckBox
+												IsChecked="{Binding IsEnabled}"
+												ToolTip="Enabled" />
+
+											<Rectangle
+												Grid.Column="1" />
+
+											<TextBlock
+												Grid.Column="2"
+												Text="{Binding Name}" />
+
+											<Rectangle
+												Grid.Column="3" />
+
+											<TextBlock
+												Grid.Column="4"
+												Text="{Binding Version}" />
+
+											<Rectangle
+												Grid.Column="5" />
+
+											<StackPanel
+												Grid.Column="6"
+												Orientation="Horizontal">
+												<Button
+													ToolTip="Move to Top">
+													<Button.CommandParameter>
+														<MultiBinding Converter="{x:Static c:IndexOfItemConverter.Instance}">
+															<Binding RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+															<Binding Path="." />
+															<Binding Path="DataContext.ListVersion" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+														</MultiBinding>
+													</Button.CommandParameter>
+													<Button.Command>
+														<Binding Path="DataContext.MoveTopCommand" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+													</Button.Command>
+													<Image
+														Stretch="None"
+														Source="{x:Static local:Images+ActionIcons.Top}" />
+												</Button>
+												<Button
+													ToolTip="Move Up">
+													<Button.CommandParameter>
+														<MultiBinding Converter="{x:Static c:IndexOfItemConverter.Instance}">
+															<Binding RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+															<Binding Path="." />
+															<Binding Path="DataContext.ListVersion" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+														</MultiBinding>
+													</Button.CommandParameter>
+													<Button.Command>
+														<Binding Path="DataContext.MoveUpCommand" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+													</Button.Command>
+													<Image
+														Stretch="None"
+														Source="{x:Static local:Images+ActionIcons.Up}" />
+												</Button>
+												<Button
+													ToolTip="Move Down">
+													<Button.CommandParameter>
+														<MultiBinding Converter="{x:Static c:IndexOfItemConverter.Instance}">
+															<Binding RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+															<Binding Path="." />
+															<Binding Path="DataContext.ListVersion" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+														</MultiBinding>
+													</Button.CommandParameter>
+													<Button.Command>
+														<Binding Path="DataContext.MoveDownCommand" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+													</Button.Command>
+													<Image
+														Stretch="None"
+														Source="{x:Static local:Images+ActionIcons.Down}" />
+												</Button>
+												<Button
+													ToolTip="Move to Bottom">
+													<Button.CommandParameter>
+														<MultiBinding Converter="{x:Static c:IndexOfItemConverter.Instance}">
+															<Binding RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+															<Binding Path="." />
+															<Binding Path="DataContext.ListVersion" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+														</MultiBinding>
+													</Button.CommandParameter>
+													<Button.Command>
+														<Binding Path="DataContext.MoveBottomCommand" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+													</Button.Command>
+													<Image
+														Stretch="None"
+														Source="{x:Static local:Images+ActionIcons.Bottom}" />
+												</Button>
+											</StackPanel>
+
+											<Rectangle
+												Grid.Column="7" />
+
+											<Button
+												Grid.Column="8"
+												ToolTip="Remove">
+												<Button.CommandParameter>
+													<MultiBinding Converter="{x:Static c:IndexOfItemConverter.Instance}">
+														<Binding RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+														<Binding Path="." />
+														<Binding Path="DataContext.ListVersion" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+													</MultiBinding>
+												</Button.CommandParameter>
+												<Button.Command>
+													<Binding Path="DataContext.RemoveCommand" RelativeSource="{RelativeSource AncestorType={x:Type ItemsControl}}" />
+												</Button.Command>
+												<Image
+													Stretch="None"
+													Source="{x:Static local:Images+ActionIcons.Remove}" />
+											</Button>
+
+										</Grid>
+									</Border>
+								</Grid>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</Grid>
+		</Border>
+
+		<!-- Row 6: Main Buttons -->
+		<Grid
+			Grid.Row="6"
+			Margin="10">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="20" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="20" />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+
+			<Button
+				Content="Settings"
+				Command="{Binding ShowSettingsCommand}"
+				ToolTip="Opens the options menu" />
+
+			<Button
+				Grid.Column="3"
+				Content="Uninstall Mods"
+				Command="{Binding UninstallModsCommand}"
+				ToolTip="Removes all mods from the game. The game must not be running." />
+
+			<Button
+				Grid.Column="5"
+				Content="Install Mods"
+				Command="{Binding InstallModsCommand}"
+				ToolTip="Applies the current mod list to the game. The game must not be running." />
+
+		</Grid>
+
+		<StatusBar
+			Grid.Row="8">
+			<StatusBarItem>
+				<TextBlock Text="{Binding StatusMessage}" />
+			</StatusBarItem>
+		</StatusBar>
+	</Grid>
+</Window>

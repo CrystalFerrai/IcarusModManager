@@ -1,0 +1,11 @@
+==============================================================================
+License for Images
+==============================================================================
+
+Directories within this tree contain images taken from the Visual Studio 2022
+Image Library. The license for this library can be found in a separate file
+called "Visual Studio 2022 Image Library EULA.rtf". These image files are
+governed exclusively by that license.
+
+Some image files have been renamed from their original file name to suit the
+purposes of this application.

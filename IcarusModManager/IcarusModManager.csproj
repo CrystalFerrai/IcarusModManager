@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<OutputType>WinExe</OutputType>
+	<TargetFramework>net6.0-windows</TargetFramework>
+	<Nullable>enable</Nullable>
+	<UseWPF>true</UseWPF>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<Platforms>x64</Platforms>
+	<Authors>Crystal Ferrai</Authors>
+	<Copyright>Copyright © 2022 Crystal Ferrai</Copyright>
+	<Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\ActionIcons\Add.png" />
+    <None Remove="Images\ActionIcons\Bottom.png" />
+    <None Remove="Images\ActionIcons\Down.png" />
+    <None Remove="Images\ActionIcons\Remove.png" />
+    <None Remove="Images\ActionIcons\Search.png" />
+    <None Remove="Images\ActionIcons\Top.png" />
+    <None Remove="Images\ActionIcons\Up.png" />
+    <None Remove="Images\ActionIcons\Web.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="7.0.0-preview.5.22303.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetPak\NetPak\NetPak.csproj" />
+    <ProjectReference Include="..\UAssetAPI\UAssetAPI\UAssetAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\ActionIcons\Add.png" />
+    <Resource Include="Images\ActionIcons\Bottom.png" />
+    <Resource Include="Images\ActionIcons\Down.png" />
+    <Resource Include="Images\ActionIcons\Remove.png" />
+    <Resource Include="Images\ActionIcons\Search.png" />
+    <Resource Include="Images\ActionIcons\Top.png" />
+    <Resource Include="Images\ActionIcons\Up.png" />
+    <Resource Include="Images\ActionIcons\Web.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Remove="Images\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
