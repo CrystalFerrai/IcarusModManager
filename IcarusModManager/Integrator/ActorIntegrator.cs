@@ -40,7 +40,7 @@ namespace IcarusModManager.Integrator
         static ActorIntegrator()
         {
             // Template asset comes from an older engine version. It doesn't seem to matter for now.
-            UAsset asset = new UAsset(UE4Version.VER_UE4_23);
+            UAsset asset = new(UE4Version.VER_UE4_18);
 
             using (MemoryStream stream = new MemoryStream(Properties.Resources.ActorTemplate))
             using (AssetBinaryReader reader = new AssetBinaryReader(stream, asset))
