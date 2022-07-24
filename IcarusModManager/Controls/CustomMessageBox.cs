@@ -213,6 +213,15 @@ namespace IcarusModManager.Controls
             DependencyObject? mainWindow = null;
             if (Application.Current != null)
             {
+                if (System.Windows.Threading.Dispatcher.CurrentDispatcher != Application.Current.Dispatcher)
+                {
+                    return Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        mainWindow = Application.Current.MainWindow;
+                        return Show(mainWindow, message, caption, buttons, icon, playSound);
+                    });
+                }
+
                 mainWindow = Application.Current.MainWindow;
             }
             return Show(mainWindow, message, caption, buttons, icon, playSound);
@@ -315,26 +324,26 @@ namespace IcarusModManager.Controls
                     mRightButtonPart.IsTabStop = true;
                     break;
                 case MessageBoxButton.YesNo:
-                    mLeftButtonPart.Content = "_Yes";
+                    mLeftButtonPart.Content = new AccessText() { Text = "_Yes" };
                     mLeftButtonPart.Command = new DelegateCommand(() => setResult(MessageBoxResult.Yes));
                     mLeftButtonPart.IsDefault = true;
                     mLeftButtonPart.Visibility = Visibility.Visible;
                     mLeftButtonPart.IsTabStop = true;
 
-                    mRightButtonPart.Content = "_No";
+                    mRightButtonPart.Content = new AccessText() { Text = "_No" };
                     mRightButtonPart.Command = new DelegateCommand(() => setResult(MessageBoxResult.No));
                     mRightButtonPart.IsCancel = true;
                     mRightButtonPart.Visibility = Visibility.Visible;
                     mRightButtonPart.IsTabStop = true;
                     break;
                 case MessageBoxButton.YesNoCancel:
-                    mLeftButtonPart.Content = "_Yes";
+                    mLeftButtonPart.Content = new AccessText() { Text = "_Yes" };
                     mLeftButtonPart.Command = new DelegateCommand(() => setResult(MessageBoxResult.Yes));
                     mLeftButtonPart.IsDefault = true;
                     mLeftButtonPart.Visibility = Visibility.Visible;
                     mLeftButtonPart.IsTabStop = true;
 
-                    mCenterButtonPart.Content = "_No";
+                    mCenterButtonPart.Content = new AccessText() { Text = "_No" };
                     mCenterButtonPart.Command = new DelegateCommand(() => setResult(MessageBoxResult.No));
                     mCenterButtonPart.Visibility = Visibility.Visible;
                     mCenterButtonPart.IsTabStop = true;

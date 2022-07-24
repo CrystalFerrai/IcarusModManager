@@ -231,7 +231,7 @@ namespace IcarusModManager
 
 			// The data pak file has a bogus mount point, so everything gets loaded as if there is no mount point
 			string dataIntegrationFileName = "998-ModIntegration_Data_P.pak";
-			PakFile dataIntegrationFile = PakFile.Create((FString)dataIntegrationFileName, FString.Empty);
+			PakFile dataIntegrationFile = PakFile.Create((FString)dataIntegrationFileName, (FString)"../../../Icarus/Content/data/");
 			foreach (var pair in jsonPatches)
 			{
 				ReadOnlySpan<byte> sourceData;
