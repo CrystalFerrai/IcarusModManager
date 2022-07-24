@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Exceptions;
 using Microsoft.AspNetCore.JsonPatch.Operations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -48,7 +49,14 @@ namespace IcarusModManager.Integrator
 			foreach (List<Operation> patchList in patches)
 			{
 				JsonPatchDocument document = new JsonPatchDocument(patchList, contractResolver);
-				document.ApplyTo(sourceObj);
+				try
+				{
+					document.ApplyTo(sourceObj);
+				}
+				catch (JsonPatchException)
+				{
+					// It is valid for patches to fail. We should still continue with further patches.
+				}
 			}
 
 			return JsonConvert.SerializeObject(sourceObj, Formatting.Indented);
