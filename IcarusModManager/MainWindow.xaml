@@ -25,7 +25,7 @@ limitations under the License.
     xmlns:local="clr-namespace:IcarusModManager"
 	xmlns:model="clr-namespace:IcarusModManager.Model"
 	xmlns:c="clr-namespace:IcarusModManager.Converters"
-    Title="Icarus Mod Manager"
+    Title="{Binding WindowTitle}"
     Width="550"
     Height="700"
 	MinWidth="350"

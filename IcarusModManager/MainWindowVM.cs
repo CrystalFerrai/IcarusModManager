@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
@@ -55,6 +56,11 @@ namespace IcarusModManager
 		private readonly DelegateCommand<int?> mMoveBottomCommand;
 
 		private readonly DelegateCommand<int?> mRemoveCommand;
+
+		/// <summary>
+		/// Gets the title for the main window
+		/// </summary>
+		public string WindowTitle { get; }
 
 		/// <summary>
 		/// The list of game mods being managed by the application
@@ -113,6 +119,9 @@ namespace IcarusModManager
 
 		public MainWindowVM()
 		{
+			Version version = Assembly.GetExecutingAssembly().GetName().Version!;
+			WindowTitle = $"Icarus Mod Manager {version.ToString(3)}";
+
 			mSettings = new Settings();
 			mModManager = new ModManager();
 			mResetStatusTimer = new DispatcherTimer(TimeSpan.FromSeconds(10), DispatcherPriority.Normal, (s, e) => { StatusMessage = string.Empty; mResetStatusTimer!.Stop(); }, Dispatcher.CurrentDispatcher) { IsEnabled = false };

@@ -7,9 +7,6 @@
 	<UseWPF>true</UseWPF>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Platforms>x64</Platforms>
-	<Authors>Crystal Ferrai</Authors>
-	<Copyright>Copyright © 2022 Crystal Ferrai</Copyright>
-	<Version>0.1.0</Version>
 	<ApplicationIcon>Logo.ico</ApplicationIcon>
   </PropertyGroup>
 
