@@ -21,6 +21,8 @@ Releases can be found [here](https://github.com/CrystalFerrai/IcarusModManager/r
 
 There is currently no installer for Icarus Mod Manager. Simply extract the contents of the release zip file somewhere on your PC and run IcarusModManager.exe to use the application. (An installer might be added in the future.)
 
+If the app will not start, then you may not have the .NET 6 runtime installed. You can find [downloads here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0). On that page, look under the section ".NET Desktop Runtime" and choose "x64". Typically, you want to get the latest available version that starts with 6.0.
+
 ## How to Use
 
 When you run the application, you are presented with an empty mod list. You can add mods to the list by either dragging them into the window or by pressing the "Add Mods" button and locating them.
