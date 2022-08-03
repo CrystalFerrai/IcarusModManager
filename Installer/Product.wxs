@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2022 Crystal Ferrai
+	
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+	
+	http://www.apache.org/licenses/LICENSE-2.0
+	
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+	<Product Id="6D145147-0748-4801-B521-F1BC0F710A98" Name="IcarusModManager" Language="1033" Version="1.0.0.0" Manufacturer="Crystal" UpgradeCode="3FA0329A-4BCD-4AE0-A214-EBB975037933">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes" />
+
+		<Icon Id="icon.ico" SourceFile="..\IcarusModManager\Logo.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFiles64Folder">
+				<Directory Id="INSTALLFOLDER" Name="IcarusModManager" />
+			</Directory>
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="MENUFOLDER" Name="IcarusModManager"/>
+			</Directory>
+			<Directory Id="DesktopFolder" />
+		</Directory>
+
+		<DirectoryRef Id="INSTALLFOLDER">
+			<Component Id="IcarusModManager" Guid="1350AF18-91F6-4F40-B976-48D818AC0A6B">
+				<File Id="IcarusModManager.exe" Source="..\IcarusModManager\bin\Release\Publish\IcarusModManager.exe" KeyPath="yes" Checksum="yes" />
+				<File Id="IcarusModManager.dll" Source="..\IcarusModManager\bin\Release\Publish\IcarusModManager.dll" Checksum="yes"/>
+				<File Id="IcarusModManager.deps.json" Source="..\IcarusModManager\bin\Release\Publish\IcarusModManager.deps.json" />
+				<File Id="IcarusModManager.runtimeconfig.json" Source="..\IcarusModManager\bin\Release\Publish\IcarusModManager.runtimeconfig.json" />
+			</Component>
+			<Component Id="Microsoft.AspNetCore.JsonPatch" Guid="14E91414-61D6-46BC-9A8F-0FC5CBEDA192">
+				<File Id="Microsoft.AspNetCore.JsonPatch.dll" Source="..\IcarusModManager\bin\Release\Publish\Microsoft.AspNetCore.JsonPatch.dll" KeyPath="yes" Checksum="yes" />
+			</Component>
+			<Component Id="Microsoft.WindowsAPICodePack" Guid="3BBC00F2-1E1B-4540-BF4A-1D09365C4B5F">
+				<File Id="Microsoft.WindowsAPICodePack.dll" Source="..\IcarusModManager\bin\Release\Publish\Microsoft.WindowsAPICodePack.dll" KeyPath="yes" Checksum="yes" />
+			</Component>
+			<Component Id="Microsoft.WindowsAPICodePack.Shell" Guid="CAF53F4C-60EE-4738-BF27-453F41F623B2">
+				<File Id="Microsoft.WindowsAPICodePack.Shell.dll" Source="..\IcarusModManager\bin\Release\Publish\Microsoft.WindowsAPICodePack.Shell.dll" KeyPath="yes" Checksum="yes" />
+			</Component>
+			<Component Id="NetPak" Guid="19AA39E4-389B-4CCE-ABEB-035F3789288A">
+				<File Id="NetPak.dll" Source="..\IcarusModManager\bin\Release\Publish\NetPak.dll" KeyPath="yes" Checksum="yes" />
+			</Component>
+			<Component Id="Newtonsoft.Json" Guid="D6B43EE7-D4BF-45D7-93B8-36787C319E4C">
+				<File Id="Newtonsoft.Json.dll" Source="..\IcarusModManager\bin\Release\Publish\Newtonsoft.Json.dll" KeyPath="yes" Checksum="yes" />
+			</Component>
+			<Component Id="UAssetAPI" Guid="ED9F445C-B943-473F-AF06-1D5E2A858ECB">
+				<File Id="UAssetAPI.dll" Source="..\IcarusModManager\bin\Release\Publish\UAssetAPI.dll" KeyPath="yes" Checksum="yes" />
+				<File Id="UAssetAPI.xml" Source="..\IcarusModManager\bin\Release\Publish\UAssetAPI.xml" />
+			</Component>
+		</DirectoryRef>
+
+		<DirectoryRef Id="MENUFOLDER">
+			<Component Id="StartMenuShortcut" Guid="30F0EF2C-AFDD-441B-B3BB-03785E798150">
+				<Shortcut Id="ApplicationShortcut" Name="IcarusModManager" Description="Run IcarusModManager" Target="[#IcarusModManager.exe]" WorkingDirectory="INSTALLFOLDER"/>
+				<Shortcut Id="UninstallShortcut" Name="Uninstall" Description="Uninstall IcarusModManager" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]"/>
+				<RemoveFolder Id="MENUFOLDER" On="uninstall"/>
+				<RegistryValue Root="HKCU" Key="Software\Crystal\IcarusModManager" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
+			</Component>
+		</DirectoryRef>
+
+		<Property Id="INSTALLSHORTCUT" Value="yes" />
+
+		<DirectoryRef Id="DesktopFolder">
+			<Component Id="DesktopShortcut" Guid="8B40B873-4A2F-45C0-A67F-9A79D3E9E350">
+				<Condition>INSTALLSHORTCUT</Condition>
+				<Shortcut Id="ProductShortcut" Name="IcarusModManager" Description="Run IcarusModManager" Target="[#IcarusModManager.exe]" WorkingDirectory="INSTALLFOLDER" />
+				<RemoveFile Id="ProductShortcutRemove" Name="IcarusModManager.lnk" On="uninstall"/>
+				<RegistryValue Root="HKCU" Key="Software\Crystal\IcarusModManager" Name="Installed" Type="integer" Value="1" KeyPath="yes"/>
+			</Component>
+		</DirectoryRef>
+
+		<Feature Id="MainApplication" Title="Main Application" Level="1">
+			<ComponentRef Id="IcarusModManager" />
+			<ComponentRef Id="Microsoft.AspNetCore.JsonPatch" />
+			<ComponentRef Id="Microsoft.WindowsAPICodePack" />
+			<ComponentRef Id="Microsoft.WindowsAPICodePack.Shell" />
+			<ComponentRef Id="NetPak" />
+			<ComponentRef Id="Newtonsoft.Json" />
+			<ComponentRef Id="UAssetAPI" />
+			<ComponentRef Id="StartMenuShortcut" />
+			<ComponentRef Id="DesktopShortcut" />
+		</Feature>
+
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+		<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch IcarusModManager" />
+		<Property Id="WixShellExecTarget" Value="[#IcarusModManager.exe]" />
+		<CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+		<UI>
+			<UIRef Id="Custom_InstallDir" />
+			<Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+		</UI>
+	</Product>
+</Wix>

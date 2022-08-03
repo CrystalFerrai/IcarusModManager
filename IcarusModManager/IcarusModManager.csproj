@@ -8,6 +8,7 @@
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Platforms>x64</Platforms>
 	<ApplicationIcon>Logo.ico</ApplicationIcon>
+	<PublishProfile>Properties\PublishProfiles\FolderProfile.pubxml</PublishProfile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -66,4 +67,14 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <Target Name="SetNoBuild">
+    <PropertyGroup>
+      <NoBuild>true</NoBuild>
+    </PropertyGroup>
+  </Target>
+  <Target Name="PublishAfterBuild" Condition="'$(Configuration)'=='Release'" AfterTargets="AfterBuild" DependsOnTargets="SetNoBuild;Publish" />
+  <Target Name="CleanAfterBuild" Condition="'$(Configuration)'=='Release'" AfterTargets="AfterClean">
+    <RemoveDir Directories="$(PublishDir)" Condition="'$(PublishDir)' != ''"/>
+  </Target>
+	
 </Project>

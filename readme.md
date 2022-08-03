@@ -19,7 +19,7 @@ Releases can be found [here](https://github.com/CrystalFerrai/IcarusModManager/r
 
 ## How to Install
 
-There is currently no installer for Icarus Mod Manager. Simply extract the contents of the release zip file somewhere on your PC and run IcarusModManager.exe to use the application. (An installer might be added in the future.)
+Releases include an installer and a standalone zip. You can use whichever you prefer. With the standalone version, simply extract the contents to any directory and run the program directly from there.
 
 If the app will not start, then you may not have the .NET 6 runtime installed. You can find [downloads here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0). On that page, look under the section ".NET Desktop Runtime" and choose "x64". Typically, you want to get the latest available version that starts with 6.0.
 
@@ -41,12 +41,32 @@ If you want to play unmodded, pressing "Uninstall Mods" will remove all mods fro
 
 ## How to Uninstall
 
-Simply delete the folder containing the application files to remove it from your system. You can optionally also delete the application's user settings which are stored at `%localappdata%\IcarusModManager`. If you still have mods isntalled, you can either remove them using the app before you uninstall it, or you can manually remove them from your game's install folder by deleting the folder `Icarus\Content\Paks\Mods`.
+Before uninstalling the application, you should first run it and tell it to uninstall mods. Uninstalling the application does not automatically uninstall mods you have added to the game. Another option is to remove mods from the game manually by deleting the `Mods` folder located at `Icarus\Content\Paks\Mods` in your game directory.
+
+If you installed via the installer, you should have an uninstall link in your start menu. You can optionally uninstall from "Programs and Features". Either way does the same thing. If you are using the standalone distribution, simply delete the files.
+
+User settings, such as your mod list, are not removed automatically by uninstalling the application. If you want to remove this data, you can delete it from your file system. User settings are stored at `%localappdata%\IcarusModManager`.
 
 # Creating Mods
 
 If you are a mod author that wants to take advantage of the asset patching features offered by this application, take a look at [this guide](https://docs.google.com/document/d/1jxYX6o0YYKZmJQSNuogKRW88MnFo3NHvDx20UVI2T0A/view) for all of the details.
 
-# Current State
+# Building from Source
 
-This application is still under development. While the core functionality is in place, there are some extra features that are not yet implemented. It is also likely that there are bugs I don't know about. If you find any, please open an issue on the Github repo, and I will look into it when I get a chance. Include as much detail as you can. If the issue requires specific mods to reproduce, be sure to include how to get those mods in the issue description.
+IcarusModManager is built in Visual Studio 2022. If you want to build from source, here are the basic steps to follow.
+
+1. Clone the repo, including submodules.
+    ```
+    git clone --recursive https://github.com/CrystalFerrai/IcarusModManager.git
+    ```
+2. Download and install the [WiX Toolset build tools](https://github.com/wixtoolset/wix3/releases).
+3. Download an install the [WiX Toolset Visual Studio 2022 Extension](https://marketplace.visualstudio.com/items?itemName=WixToolset.WixToolsetVisualStudio2022Extension).
+4. Open the file `IcarusModManager.sln` in Visual Studio.
+5. Right click the solution in the Solution Explorer panel and select "Restore NuGet Dependencies".
+6. Build the solution.
+
+The Debug configuration includes only the mod manager and its dependencies. The Release configuration also includes building the installer.
+
+# Reporting Issues
+
+If you find any problems with the application, you can [open an issue](https://github.com/CrystalFerrai/IcarusModManager/issues). Include as much detail as you can. If the issue requires specific mods to reproduce, be sure to include how to get those mods in the issue description. I will look into reported issues when I find time.
