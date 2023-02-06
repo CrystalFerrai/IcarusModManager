@@ -8,7 +8,16 @@
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Platforms>x64</Platforms>
 	<ApplicationIcon>Logo.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 	<PublishProfile>Properties\PublishProfiles\FolderProfile.pubxml</PublishProfile>
+    <DebugType>none</DebugType>
+	<Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -74,7 +83,7 @@
   </Target>
   <Target Name="PublishAfterBuild" Condition="'$(Configuration)'=='Release'" AfterTargets="AfterBuild" DependsOnTargets="SetNoBuild;Publish" />
   <Target Name="CleanAfterBuild" Condition="'$(Configuration)'=='Release'" AfterTargets="AfterClean">
-    <RemoveDir Directories="$(PublishDir)" Condition="'$(PublishDir)' != ''"/>
+    <RemoveDir Directories="$(PublishDir)" Condition="'$(PublishDir)' != ''" />
   </Target>
 	
 </Project>
