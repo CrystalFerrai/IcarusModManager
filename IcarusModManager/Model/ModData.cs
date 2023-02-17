@@ -342,26 +342,6 @@ namespace IcarusModManager.Model
 			return mPakFiles.Count > 0;
 		}
 
-		public override int GetHashCode()
-		{
-			return ID.GetHashCode();
-		}
-
-		public override bool Equals(object? obj)
-		{
-			return obj is ModData other && ID == other.ID;
-		}
-
-		public static bool operator ==(ModData a, ModData b)
-		{
-			return a.Equals(b);
-		}
-
-		public static bool operator !=(ModData a, ModData b)
-		{
-			return !a.Equals(b);
-		}
-
 		public override string ToString()
 		{
 			if (Name == null) return "Unnamed Mod";

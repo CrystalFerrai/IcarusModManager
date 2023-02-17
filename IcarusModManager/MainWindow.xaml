@@ -220,7 +220,7 @@ limitations under the License.
 													<TextBlock
 														HorizontalAlignment="Right"
 														Margin="10">
-														<Run Text="Version " /><Run Text="{Binding Version}" />
+														<Run Text="Version " /><Run Text="{Binding Version, Mode=OneWay}" />
 														<TextBlock.Style>
 															<Style TargetType="{x:Type FrameworkElement}">
 																<Setter Property="Visibility" Value="Visible" />
