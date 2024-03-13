@@ -193,7 +193,7 @@ namespace IcarusModManager
 		/// <summary>
 		/// Installs the currently enabled mods into the game
 		/// </summary>
-		/// <param name="gameDirectory">The root directory of the game isntallation</param>
+		/// <param name="gameDirectory">The root directory of the game installation</param>
 		public void InstallMods(string gameDirectory)
 		{
 			if (!Directory.Exists(gameDirectory)) return;

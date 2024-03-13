@@ -27,6 +27,6 @@ namespace IcarusModManager.Integrator
 		/// <remarks>
 		/// This should be changed whenever the game upgrades to a new engine version.
 		/// </remarks>
-		public static UE4Version EngineVersion => UE4Version.VER_UE4_27;
+		public static EngineVersion EngineVersion => EngineVersion.VER_UE4_27;
 	}
 }

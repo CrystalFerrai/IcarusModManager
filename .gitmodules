@@ -1,6 +1,6 @@
 [submodule "UAssetAPI"]
 	path = UAssetAPI
-	url = https://github.com/CrystalFerrai/UAssetAPI.git
+	url = https://github.com/atenfyr/UAssetAPI.git
 [submodule "NetPak"]
 	path = NetPak
 	url = https://github.com/CrystalFerrai/NetPak.git

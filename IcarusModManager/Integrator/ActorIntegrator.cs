@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UAssetAPI;
+using UAssetAPI.ExportTypes;
 using UAssetAPI.FieldTypes;
 using UAssetAPI.PropertyTypes.Objects;
 using UAssetAPI.PropertyTypes.Structs;
@@ -39,17 +40,24 @@ namespace IcarusModManager.Integrator
 
         static ActorIntegrator()
         {
-            // Template asset comes from an older engine version. It doesn't seem to matter for now.
-            UAsset asset = new(UE4Version.VER_UE4_18);
+            // To generate a template file without separate uexp, set these in DefaultEngine.ini
+            //
+            // [Core.System]
+            // UseSeperateBulkDataFiles=False
+            // 
+            // [/Script/Engine.StreamingSettings]
+            // s.EventDrivenLoaderEnabled=False
 
-            using (MemoryStream stream = new MemoryStream(Properties.Resources.ActorTemplate))
-            using (AssetBinaryReader reader = new AssetBinaryReader(stream, asset))
+            UAsset asset = new(EngineVersion.VER_UE4_27);
+
+            using (MemoryStream stream = new(Properties.Resources.ActorTemplate))
+            using (AssetBinaryReader reader = new(stream, asset))
             {
                 asset.Read(reader);
             }
 
-            sRefTemplate = asset.Exports[5];
-            sRefSCSNode = asset.Exports[10];
+            sRefTemplate = asset.Exports[2];
+            sRefSCSNode = asset.Exports[5];
         }
 
         /// <summary>
@@ -118,11 +126,11 @@ namespace IcarusModManager.Integrator
                     component = tData[1].Remove(tData[1].Length - 2);
                 }
 
-                Import firstLink = new Import(new FName(asset, "/Script/CoreUObject"), new FName(asset, "Package"), FPackageIndex.FromRawIndex(0), new FName(asset, componentPath));
+                Import firstLink = new Import(new FName(asset, "/Script/CoreUObject"), new FName(asset, "Package"), FPackageIndex.FromRawIndex(0), new FName(asset, componentPath), false);
                 FPackageIndex bigFirstLink = asset.AddImport(firstLink);
-                Import newLink = new Import(new FName(asset, "/Script/Engine"), new FName(asset, "BlueprintGeneratedClass"), bigFirstLink, new FName(asset, component + "_C"));
+                Import newLink = new Import(new FName(asset, "/Script/Engine"), new FName(asset, "BlueprintGeneratedClass"), bigFirstLink, new FName(asset, component + "_C"), false);
                 FPackageIndex bigNewLink = asset.AddImport(newLink);
-                Import newLink2 = new Import(new FName(asset, componentPath), new FName(asset, component + "_C"), bigFirstLink, new FName(asset, "Default__" + component + "_C"));
+                Import newLink2 = new Import(new FName(asset, componentPath), new FName(asset, component + "_C"), bigFirstLink, new FName(asset, "Default__" + component + "_C"), false);
                 FPackageIndex bigNewLink2 = asset.AddImport(newLink2);
 
                 refTemplateExport.ClassIndex = bigNewLink;
@@ -153,7 +161,7 @@ namespace IcarusModManager.Integrator
 
                 // Then the SCS_Node
                 NormalExport scsNodeExport = refSCSNodeExport.ConvertToChildExport<NormalExport>();
-                scsNodeExport.ObjectName = new FName(asset, "SCS_Node", ++scsNodeOffset + 1);
+                scsNodeExport.ObjectName = new FName(asset, "SCS_Node", ++scsNodeOffset);
                 scsNodeExport.Extras = new byte[4] { 0, 0, 0, 0 };
                 scsNodeExport.CreateBeforeSerializationDependencies.Add(bigNewLink);
                 scsNodeExport.CreateBeforeSerializationDependencies.Add(FPackageIndex.FromRawIndex(asset.Exports.Count));
@@ -191,7 +199,7 @@ namespace IcarusModManager.Integrator
                 FObjectProperty objectProp = new FObjectProperty()
                 {
                     ArrayDim = EArrayDim.TArray,
-                    BlueprintReplicationCondition = ELifetimeCondition.COND_None,
+                    BlueprintReplicationCondition = UAssetAPI.FieldTypes.ELifetimeCondition.COND_None,
                     ElementSize = 8,
                     Flags = EObjectFlags.RF_Public | EObjectFlags.RF_LoadCompleted,
                     Name = new FName(asset, component),
