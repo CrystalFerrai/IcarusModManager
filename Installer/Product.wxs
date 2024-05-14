@@ -16,7 +16,7 @@ limitations under the License.
 -->
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-	<Product Id="6D145147-0748-4801-B521-F1BC0F710A98" Name="IcarusModManager" Language="1033" Version="1.0.0.0" Manufacturer="Crystal" UpgradeCode="3FA0329A-4BCD-4AE0-A214-EBB975037933">
+	<Product Id="6D145147-0748-4801-B521-F1BC0F710A98" Name="IcarusModManager" Language="1033" Version="1.0.3.0" Manufacturer="Crystal" UpgradeCode="3FA0329A-4BCD-4AE0-A214-EBB975037933">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
@@ -53,6 +53,8 @@ limitations under the License.
 			</Component>
 			<Component Id="NetPak" Guid="19AA39E4-389B-4CCE-ABEB-035F3789288A">
 				<File Id="NetPak.dll" Source="..\IcarusModManager\bin\Release\Publish\NetPak.dll" KeyPath="yes" Checksum="yes" />
+				<File Id="EpicGames.Oodle.dll" Source="..\IcarusModManager\bin\Release\Publish\EpicGames.Oodle.dll" Checksum="yes" />
+				<File Id="oo2core_9_win64.dll" Source="..\IcarusModManager\bin\Release\Publish\oo2core_9_win64.dll" Checksum="yes" />
 			</Component>
 			<Component Id="Newtonsoft.Json" Guid="D6B43EE7-D4BF-45D7-93B8-36787C319E4C">
 				<File Id="Newtonsoft.Json.dll" Source="..\IcarusModManager\bin\Release\Publish\Newtonsoft.Json.dll" KeyPath="yes" Checksum="yes" />
