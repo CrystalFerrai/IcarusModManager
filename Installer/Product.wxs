@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright 2022 Crystal Ferrai
+Copyright 2025 Crystal Ferrai
 	
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -61,7 +61,6 @@ limitations under the License.
 			</Component>
 			<Component Id="UAssetAPI" Guid="ED9F445C-B943-473F-AF06-1D5E2A858ECB">
 				<File Id="UAssetAPI.dll" Source="..\IcarusModManager\bin\Release\Publish\UAssetAPI.dll" KeyPath="yes" Checksum="yes" />
-				<File Id="UAssetAPI.xml" Source="..\IcarusModManager\bin\Release\Publish\UAssetAPI.xml" />
 			</Component>
 		</DirectoryRef>
 
