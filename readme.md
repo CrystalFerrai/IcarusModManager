@@ -2,6 +2,8 @@
 
 A GUI application for managing game mods for the game Icarus: First Cohort.
 
+Note: This mod manager only works with mods built specifically to use it. There is another popular mod manager with the same name that can be found at [here](https://github.com/Jimk72/Icarus_Software) which has many mods built for it that cannot be used with this mod manager.
+
 ## Features
 
 Icarus Mod Manager provides the following key features.
@@ -49,7 +51,7 @@ User settings, such as your mod list, are not removed automatically by uninstall
 
 # Creating Mods
 
-If you are a mod author that wants to take advantage of the asset patching features offered by this application, take a look at [this guide](https://docs.google.com/document/d/1jxYX6o0YYKZmJQSNuogKRW88MnFo3NHvDx20UVI2T0A/view) for all of the details.
+If you are a mod author that wants to take advantage of the asset patching features offered by this application, take a look at [this guide](docs/creating_mods.md) for all of the details.
 
 # Building from Source
 

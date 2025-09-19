@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using IcarusModManager.Integrator;
 using Microsoft.AspNetCore.JsonPatch.Operations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -84,6 +85,9 @@ namespace IcarusModManager.Model
 					break;
 				case ModPatchType.Actor:
 					patchData = ActorPatchData.Read(patchDataObject);
+					break;
+				case ModPatchType.DataTable:
+					patchData = DataTablePatchData.Read(patchDataObject);
 					break;
 				case ModPatchType.Invalid:
 				default:
@@ -159,12 +163,43 @@ namespace IcarusModManager.Model
 	}
 
 	/// <summary>
+	/// Data associated with the Json ModPatchType
+	/// </summary>
+	internal class DataTablePatchData
+	{
+		public List<DataTableOperation> Patches { get; }
+
+		public DataTablePatchData()
+		{
+			Patches = new();
+		}
+
+		/// <summary>
+		/// Read patch data from Json
+		/// </summary>
+		/// <param name="patchObj">A Json object containing patch data</param>
+		public static DataTablePatchData Read(JObject patchObj)
+		{
+			JArray patchList = patchObj["patches"]?.Value<JArray>() ?? throw new FormatException("'data' property not valid for patch type 'DataTable'");
+
+			DataTablePatchData data = new();
+			foreach (JToken? patchToken in patchList)
+			{
+				JObject patch = patchToken as JObject ?? throw new FormatException("'data' property not valid for patch type 'DataTable'");
+				data.Patches.Add(patch.ToObject<DataTableOperation>() ?? throw new FormatException("'data' property not valid for patch type 'DataTable'"));
+			}
+			return data;
+		}
+	}
+
+	/// <summary>
 	/// The type of a ModPatchFile
 	/// </summary>
 	internal enum ModPatchType
 	{
 		Invalid,
 		Json,
-		Actor
+		Actor,
+		DataTable
 	}
 }

@@ -260,7 +260,7 @@ namespace IcarusModManager.Model
 			throw new ArgumentException($"{fileName} does not have a supported file extension. Supported extensions for mods are .zip and .pak", nameof(fileName));
 		}
 
-		public void CollectPatches(Dictionary<string, List<JsonPatchData>> jsonPatches, Dictionary<string, List<ActorPatchData>> actorPatches, GameFileManager fileManager)
+		public void CollectPatches(Dictionary<string, List<JsonPatchData>> jsonPatches, Dictionary<string, List<ActorPatchData>> actorPatches, Dictionary<string, List<DataTablePatchData>> dataTablePatches, GameFileManager fileManager)
 		{
 			foreach (ModPatchFile patchFile in mPatchFiles)
 			{
@@ -293,6 +293,17 @@ namespace IcarusModManager.Model
 								actorPatches.Add(patchFile.TargetPath, actorPatchList);
 							}
 							actorPatchList.Add((ActorPatchData)patchFile.PatchData);
+						}
+						break;
+					case ModPatchType.DataTable:
+						{
+							List<DataTablePatchData>? dataTablePatchList;
+							if (!dataTablePatches.TryGetValue(patchFile.TargetPath, out dataTablePatchList))
+							{
+								dataTablePatchList = new();
+								dataTablePatches.Add(patchFile.TargetPath, dataTablePatchList);
+							}
+							dataTablePatchList.Add((DataTablePatchData)patchFile.PatchData);
 						}
 						break;
 				}

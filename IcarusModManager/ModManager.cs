@@ -208,6 +208,7 @@ namespace IcarusModManager
 
 			Dictionary<string, List<JsonPatchData>> jsonPatches = new();
 			Dictionary<string, List<ActorPatchData>> actorPatches = new();
+			Dictionary<string, List<DataTablePatchData>> dataTablePatches = new();
 			Dictionary<string, ModData> fileOverrides = new();
 			for (int i = 0; i < mModList.Count; ++i)
 			{
@@ -222,18 +223,38 @@ namespace IcarusModManager
 					// Patches to this file from earlier mods should not be applied
 					jsonPatches.Remove(fileOverride);
 					actorPatches.Remove(fileOverride);
+					dataTablePatches.Remove(fileOverride);
 				}
 
-				mod.CollectPatches(jsonPatches, actorPatches, fileManager);
+				mod.CollectPatches(jsonPatches, actorPatches, dataTablePatches, fileManager);
 
 				mod.CopyPaks(modDirectory, i);
+			}
+
+			Dictionary<string, List<object>> allDataPatches = new();
+			foreach (var dataPatch in jsonPatches)
+			{
+				allDataPatches.Add(dataPatch.Key, dataPatch.Value.Cast<object>().ToList());
+			}
+			foreach (var dataTablePatch in dataTablePatches)
+			{
+				List<object>? list;
+				if (!allDataPatches.TryGetValue(dataTablePatch.Key, out list))
+				{
+					list = new();
+					allDataPatches.Add(dataTablePatch.Key, list);
+				}
+				list.AddRange(dataTablePatch.Value);
 			}
 
 			// The data pak file has a bogus mount point, so everything gets loaded as if there is no mount point
 			string dataIntegrationFileName = "998-ModIntegration_Data_P.pak";
 			PakFile dataIntegrationFile = PakFile.Create((FString)dataIntegrationFileName, (FString)"../../../Icarus/Content/data/");
-			foreach (var pair in jsonPatches)
+			foreach (var pair in allDataPatches)
 			{
+				IEnumerable<JsonPatchData> fileJsonPatches = pair.Value.OfType<JsonPatchData>();
+				IEnumerable<DataTablePatchData> fileDataTablePatches = pair.Value.OfType<DataTablePatchData>();
+
 				ReadOnlySpan<byte> sourceData;
 				if (fileOverrides.TryGetValue(pair.Key, out ModData? mod))
 				{
@@ -241,9 +262,16 @@ namespace IcarusModManager
 				}
 				else fileManager.ReadDataFile(pair.Key, out sourceData);
 
-				string source = Encoding.UTF8.GetString(sourceData);
-				string target = JsonIntegrator.Integrate(source, pair.Value.SelectMany(jp => jp.Patches));
-				dataIntegrationFile.AddEntry((FString)pair.Key, Encoding.UTF8.GetBytes(target));
+				string modifiedData = Encoding.UTF8.GetString(sourceData);
+				if (fileJsonPatches.Any())
+				{
+					modifiedData = JsonIntegrator.Integrate(modifiedData, fileJsonPatches.SelectMany(p => p.Patches));
+				}
+				if (fileDataTablePatches.Any())
+				{
+					modifiedData = DataTableIntegrator.Integrate(modifiedData, fileDataTablePatches.SelectMany(p => p.Patches));
+				}
+				dataIntegrationFile.AddEntry((FString)pair.Key, Encoding.UTF8.GetBytes(modifiedData));
 			}
 			dataIntegrationFile.Save(Path.Combine(modDirectory, dataIntegrationFileName));
 
