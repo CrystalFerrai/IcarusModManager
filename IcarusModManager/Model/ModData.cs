@@ -260,7 +260,12 @@ namespace IcarusModManager.Model
 			throw new ArgumentException($"{fileName} does not have a supported file extension. Supported extensions for mods are .zip and .pak", nameof(fileName));
 		}
 
-		public void CollectPatches(Dictionary<string, List<JsonPatchData>> jsonPatches, Dictionary<string, List<ActorPatchData>> actorPatches, Dictionary<string, List<DataTablePatchData>> dataTablePatches, GameFileManager fileManager)
+		public void CollectPatches(
+			IDictionary<string, List<JsonPatchData>> jsonPatches,
+			IDictionary<string, List<ActorPatchData>> actorPatches,
+			IDictionary<string, List<DataTablePatchData>> dataTablePatches,
+			IDictionary<string, List<AssetCopyPatchData>> assetCopyPatches,
+			GameFileManager fileManager)
 		{
 			foreach (ModPatchFile patchFile in mPatchFiles)
 			{
@@ -274,37 +279,16 @@ namespace IcarusModManager.Model
 				switch (patchFile.Type)
 				{
 					case ModPatchType.Json:
-						{
-							List<JsonPatchData>? jsonPatchList;
-							if (!jsonPatches.TryGetValue(patchFile.TargetPath, out jsonPatchList))
-							{
-								jsonPatchList = new List<JsonPatchData>();
-								jsonPatches.Add(patchFile.TargetPath, jsonPatchList);
-							}
-							jsonPatchList.Add((JsonPatchData)patchFile.PatchData);
-						}
+						AddPatch(patchFile, jsonPatches);
 						break;
 					case ModPatchType.Actor:
-						{
-							List<ActorPatchData>? actorPatchList;
-							if (!actorPatches.TryGetValue(patchFile.TargetPath, out actorPatchList))
-							{
-								actorPatchList = new List<ActorPatchData>();
-								actorPatches.Add(patchFile.TargetPath, actorPatchList);
-							}
-							actorPatchList.Add((ActorPatchData)patchFile.PatchData);
-						}
+						AddPatch(patchFile, actorPatches);
 						break;
 					case ModPatchType.DataTable:
-						{
-							List<DataTablePatchData>? dataTablePatchList;
-							if (!dataTablePatches.TryGetValue(patchFile.TargetPath, out dataTablePatchList))
-							{
-								dataTablePatchList = new();
-								dataTablePatches.Add(patchFile.TargetPath, dataTablePatchList);
-							}
-							dataTablePatchList.Add((DataTablePatchData)patchFile.PatchData);
-						}
+						AddPatch(patchFile, dataTablePatches);
+						break;
+					case ModPatchType.AssetCopy:
+						AddPatch(patchFile, assetCopyPatches);
 						break;
 				}
 			}
@@ -358,6 +342,17 @@ namespace IcarusModManager.Model
 			if (Name == null) return "Unnamed Mod";
 			if (Version == null) return Name;
 			return $"{Name} {Version}";
+		}
+
+		private static void AddPatch<T>(ModPatchFile patch, IDictionary<string, List<T>> patches)
+		{
+			List<T>? jsonPatchList;
+			if (!patches.TryGetValue(patch.TargetPath, out jsonPatchList))
+			{
+				jsonPatchList = new List<T>();
+				patches.Add(patch.TargetPath, jsonPatchList);
+			}
+			jsonPatchList.Add((T)patch.PatchData);
 		}
 
 		private class ModPakFile

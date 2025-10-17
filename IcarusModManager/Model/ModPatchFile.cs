@@ -89,6 +89,9 @@ namespace IcarusModManager.Model
 				case ModPatchType.DataTable:
 					patchData = DataTablePatchData.Read(patchDataObject);
 					break;
+				case ModPatchType.AssetCopy:
+					patchData = AssetCopyPatchData.Read(patchDataObject);
+					break;
 				case ModPatchType.Invalid:
 				default:
 					throw new FormatException($"'{typeString}' is not a valid value for property 'type'");
@@ -163,7 +166,7 @@ namespace IcarusModManager.Model
 	}
 
 	/// <summary>
-	/// Data associated with the Json ModPatchType
+	/// Data associated with the DataTable ModPatchType
 	/// </summary>
 	internal class DataTablePatchData
 	{
@@ -193,6 +196,29 @@ namespace IcarusModManager.Model
 	}
 
 	/// <summary>
+	/// Data associated with the AssetCopy ModPatchType
+	/// </summary>
+	internal class AssetCopyPatchData
+	{
+		public string NewPath { get; }
+
+		public AssetCopyPatchData(string newPath)
+		{
+			NewPath = newPath;
+		}
+
+		/// <summary>
+		/// Read patch data from Json
+		/// </summary>
+		/// <param name="patchObj">A Json object containing patch data</param>
+		public static AssetCopyPatchData Read(JObject patchObj)
+		{
+			string newPath = patchObj["path"]?.Value<string>() ?? throw new FormatException("'data' property not valid for patch type 'AssetCopy'");
+			return new AssetCopyPatchData(newPath);
+		}
+	}
+
+	/// <summary>
 	/// The type of a ModPatchFile
 	/// </summary>
 	internal enum ModPatchType
@@ -200,6 +226,7 @@ namespace IcarusModManager.Model
 		Invalid,
 		Json,
 		Actor,
-		DataTable
+		DataTable,
+		AssetCopy
 	}
 }

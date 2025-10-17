@@ -220,6 +220,44 @@ The path to the asset that the patch should modify.
 
 An array of components to add to the target actor. Usually, your mod would also include a .pak file containing the component you wish to add.
 
+### Asset Copy Patch
+
+As asset copy patch allows you to copy an existing game asset to a new location. This updates names within the asset so that it will function at the new location. However, it does not update any external references to the asset. External references will continue to point to the original asset.
+
+The purpose of an asset copy is to allow a mod to replace the original asset with a custom override that extends from the copied original asset. This is primarily for blueprint assets, allowing the mod to override functionality of the original blueprint without fully replacing it.
+
+When authoring a mod with an asset copy, you should include an empty/stripped version of the renamed original in your UProject and set it as the base class for your replacement asset. Do not include the stripped original in your shipped mod.
+
+The patch file has the following format:
+
+```json
+{
+	"schema_version": 1,
+	"type": "AssetCopy",
+	"target": "Icarus/Content/BP/Player/BP_IcarusPlayerControllerSurvival.uasset",
+	"data":
+	{
+		"path": "Icarus/Content/BP/Player/BP_IcarusPlayerControllerSurvival_Original.uasset"
+	}
+}
+```
+
+#### schema_version
+
+This is a required property. Currently the only valid value is 1. The purpose of this is to support changes to the format in the future in a backwards compatible manner.
+
+#### type
+
+Specifies the type of patch. Always “AssetCopy” for asset copy patches.
+
+#### target
+
+The path to the asset that the patch should copy.
+
+#### data/path
+
+The path where the asset will be copied when the patch is installed.
+
 ### Json Patch (Deprecated)
 
 _NOTE: You should now use data table patches instead of Json patches. Data table patches are more resilient to game updates because they reference rows by name rather than by index._

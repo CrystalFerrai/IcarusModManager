@@ -60,24 +60,16 @@ namespace IcarusModManager.Integrator
             sRefSCSNode = asset.Exports[5];
         }
 
-        /// <summary>
-        /// Performs an integration
-        /// </summary>
-        /// <param name="actorData">A stream containing a serialized actor, including its exports</param>
-        /// <param name="newComponents">A list of asset paths of actor components to add to the actor</param>
-        /// <returns>The actor asset with the components added</returns>
-        public static UAsset Integrate(Stream actorData, params string[] newComponents)
+		/// <summary>
+		/// Performs an integration
+		/// </summary>
+		/// <param name="asset">The actor to modify</param>
+		/// <param name="newComponents">A list of asset paths of actor components to add to the actor</param>
+		/// <returns>The actor asset with the components added</returns>
+		public static void Integrate(UAsset asset, params string[] newComponents)
         {
             if (newComponents == null) throw new ArgumentNullException(nameof(newComponents));
             if (newComponents.Length == 0) throw new ArgumentException("Must pass at least one component", nameof(newComponents));
-
-            UAsset asset = new(IntegratorUtil.EngineVersion);
-            asset.UseSeparateBulkDataFiles = true;
-
-            using (AssetBinaryReader reader = new(actorData, asset))
-            {
-                asset.Read(reader);
-            }
 
             int scsLocation = -1;
             int classLocation = -1;
@@ -243,8 +235,6 @@ namespace IcarusModManager.Integrator
                     }
                 }
             }
-
-            return asset;
         }
     }
 }

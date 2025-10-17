@@ -209,6 +209,8 @@ namespace IcarusModManager
 			Dictionary<string, List<JsonPatchData>> jsonPatches = new();
 			Dictionary<string, List<ActorPatchData>> actorPatches = new();
 			Dictionary<string, List<DataTablePatchData>> dataTablePatches = new();
+			Dictionary<string, List<AssetCopyPatchData>> AssetCopyPatches = new();
+
 			Dictionary<string, ModData> fileOverrides = new();
 			for (int i = 0; i < mModList.Count; ++i)
 			{
@@ -224,9 +226,10 @@ namespace IcarusModManager
 					jsonPatches.Remove(fileOverride);
 					actorPatches.Remove(fileOverride);
 					dataTablePatches.Remove(fileOverride);
+					AssetCopyPatches.Remove(fileOverride);
 				}
 
-				mod.CollectPatches(jsonPatches, actorPatches, dataTablePatches, fileManager);
+				mod.CollectPatches(jsonPatches, actorPatches, dataTablePatches, AssetCopyPatches, fileManager);
 
 				mod.CopyPaks(modDirectory, i);
 			}
@@ -275,10 +278,29 @@ namespace IcarusModManager
 			}
 			dataIntegrationFile.Save(Path.Combine(modDirectory, dataIntegrationFileName));
 
+			Dictionary<string, List<object>> allAssetPatches = new();
+			foreach (var actorPatch in actorPatches)
+			{
+				allAssetPatches.Add(actorPatch.Key, actorPatch.Value.Cast<object>().ToList());
+			}
+			foreach (var AssetCopyPatch in AssetCopyPatches)
+			{
+				List<object>? list;
+				if (!allAssetPatches.TryGetValue(AssetCopyPatch.Key, out list))
+				{
+					list = new();
+					allAssetPatches.Add(AssetCopyPatch.Key, list);
+				}
+				list.AddRange(AssetCopyPatch.Value);
+			}
+
 			string assetIntegrationFileName = "999-ModIntegration_Assets_P.pak";
 			PakFile assetIntegrationFile = PakFile.Create((FString)assetIntegrationFileName, (FString)"../../../");
-			foreach (var pair in actorPatches)
+			foreach (var pair in allAssetPatches)
 			{
+				IEnumerable<ActorPatchData> fileActorPatches = pair.Value.OfType<ActorPatchData>();
+				IEnumerable<AssetCopyPatchData> fileAssetCopyPatches = pair.Value.OfType<AssetCopyPatchData>();
+
 				string? exportsPath;
 
 				ReadOnlySpan<byte> sourceData;
@@ -301,35 +323,29 @@ namespace IcarusModManager
 					fileManager.ReadFullAsset(pair.Key, out sourceData, out exportsPath, out exportsData, out string? bulkPath, out var bulkData);
 				}
 
-				byte[] source = new byte[sourceData.Length + exportsData.Length];
-				sourceData.CopyTo(source);
-				exportsData.CopyTo(source.AsSpan(sourceData.Length));
+				UAsset asset = IntegratorUtil.ReadAsset(sourceData, exportsData);
 
-				// Add components to actor
-				using MemoryStream stream = new(source);
-				UAsset asset = ActorIntegrator.Integrate(stream, pair.Value.SelectMany(ap => ap.Components).ToArray());
-				using MemoryStream modified = asset.WriteData();
+				if (fileActorPatches.Any())
+				{
+					ActorIntegrator.Integrate(asset, fileActorPatches.SelectMany(ap => ap.Components).ToArray());
+					IntegratorUtil.WriteAsset(asset, pair.Key, exportsPath!, assetIntegrationFile);
+				}
 
-				// Must read this after WriteData which modifies it
-				int exportStart = (int)asset.Exports[0].SerialOffset;
-
-				// Write uasset
-				byte[] assetFileData = new byte[exportStart];
-				modified.ReadAll(assetFileData, 0, exportStart);
-				assetIntegrationFile.AddEntry((FString)pair.Key, assetFileData);
-
-				// Write uexp
-				byte[] exportsFileData = new byte[modified.Length - exportStart];
-				modified.ReadAll(exportsFileData, 0, (int)modified.Length - exportStart);
-				assetIntegrationFile.AddEntry((FString)exportsPath!, exportsFileData);
+				string currentPath = pair.Key;
+				foreach(AssetCopyPatchData patch in fileAssetCopyPatches)
+				{
+					AssetCopyIntegrator.Integrate(asset, currentPath, patch.NewPath);
+					IntegratorUtil.WriteAsset(asset, patch.NewPath, Path.ChangeExtension(patch.NewPath, ".uexp"), assetIntegrationFile);
+					currentPath = patch.NewPath;
+				}
 			}
 			assetIntegrationFile.Save(Path.Combine(modDirectory, assetIntegrationFileName));
 		}
 
 		/// <summary>
-		/// Uninstalls all mods fromt he game
+		/// Uninstalls all mods from the game
 		/// </summary>
-		/// <param name="gameDirectory">The root directory of the game isntallation</param>
+		/// <param name="gameDirectory">The root directory of the game installation</param>
 		public void UninstallMods(string gameDirectory)
 		{
 			if (!Directory.Exists(gameDirectory)) return;
