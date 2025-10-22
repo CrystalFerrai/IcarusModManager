@@ -39,7 +39,7 @@ namespace IcarusModManager.Utils
 		public static int ReadAll(this Stream stream, byte[] buffer, int offset, int count)
 		{
 			int total = 0;
-			while(count > 0)
+			while (count > 0)
 			{
 				int read = stream.Read(buffer, offset, count);
 				if (read == 0) return total;

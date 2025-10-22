@@ -126,7 +126,7 @@ namespace IcarusModManager.Model
 			{
 				JArray patch = patchToken as JArray ?? throw new FormatException("'data' property not valid for patch type 'Json'");
 				List<Operation> operations = new List<Operation>();
-				foreach(var operation in patch)
+				foreach (var operation in patch)
 				{
 					operations.Add(operation.ToObject<Operation>() ?? throw new FormatException("'data' property not valid for patch type 'Json'"));
 				}

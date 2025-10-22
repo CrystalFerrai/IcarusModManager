@@ -21,31 +21,31 @@ namespace IcarusModManager.Utils
 	/// Extension methods for enumerables
 	/// </summary>
 	public static class EnumerableExtensions
-    {
-        /// <summary>
-        /// Returns the index of the first item in the enumeration that matches the predicate
-        /// </summary>
-        /// <typeparam name="T">The type of items in the enumeration</typeparam>
-        /// <param name="enumerable">The enumerable instance</param>
-        /// <param name="predicate">The predicate to match</param>
-        public static int IndexOf<T>(this IEnumerable<T> enumerable, Predicate<T> predicate)
-        {
-            var e = enumerable.GetEnumerator();
-            for (int i = 0; e.MoveNext(); ++i)
-            {
-                if (predicate(e.Current)) return i;
-            }
-            return -1;
-        }
+	{
+		/// <summary>
+		/// Returns the index of the first item in the enumeration that matches the predicate
+		/// </summary>
+		/// <typeparam name="T">The type of items in the enumeration</typeparam>
+		/// <param name="enumerable">The enumerable instance</param>
+		/// <param name="predicate">The predicate to match</param>
+		public static int IndexOf<T>(this IEnumerable<T> enumerable, Predicate<T> predicate)
+		{
+			var e = enumerable.GetEnumerator();
+			for (int i = 0; e.MoveNext(); ++i)
+			{
+				if (predicate(e.Current)) return i;
+			}
+			return -1;
+		}
 
-        /// <summary>
-        /// Returns whether the enumeration contains exactly one item
-        /// </summary>
-        /// <param name="enumerable">The enumerable instance</param>
-        public static bool CountEqualsOne<T>(this IEnumerable<T> enumerable)
-        {
-            var e = enumerable.GetEnumerator();
-            return e.MoveNext() ? !e.MoveNext() : false;
-        }
-    }
+		/// <summary>
+		/// Returns whether the enumeration contains exactly one item
+		/// </summary>
+		/// <param name="enumerable">The enumerable instance</param>
+		public static bool CountEqualsOne<T>(this IEnumerable<T> enumerable)
+		{
+			var e = enumerable.GetEnumerator();
+			return e.MoveNext() ? !e.MoveNext() : false;
+		}
+	}
 }
