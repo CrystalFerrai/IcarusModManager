@@ -23,7 +23,7 @@ Releases can be found [here](https://github.com/CrystalFerrai/IcarusModManager/r
 
 Releases include an installer and a standalone zip. You can use whichever you prefer. With the standalone version, simply extract the contents to any directory and run the program directly from there.
 
-If the app will not start, then you may not have the .NET 6 runtime installed. You can find [downloads here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0). On that page, look under the section ".NET Desktop Runtime" and choose "x64". Typically, you want to get the latest available version that starts with 6.0.
+If the app will not start, then you may not have the .NET 8 runtime installed. You can find [downloads here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0). On that page, look under the section ".NET Desktop Runtime" and choose "x64". Typically, you want to get the latest available version that starts with 8.0. (For versions of IcarusModManager earlier than 1.2, you will instead need .NET 6 from [here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).)
 
 ## How to Use
 
