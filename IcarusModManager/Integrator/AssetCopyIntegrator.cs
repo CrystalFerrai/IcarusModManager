@@ -60,12 +60,10 @@ namespace IcarusModManager.Integrator
 				if (nameMap[i].Value.Contains(originalGamePath, StringComparison.InvariantCultureIgnoreCase))
 				{
 					asset.SetNameReference(i, new(nameMap[i].Value.Replace(originalGamePath, newGamePath)));
-					System.Diagnostics.Debug.WriteLine(i);
 				}
 				else if (nameMap[i].Value.Contains(originalAssetName, StringComparison.InvariantCultureIgnoreCase))
 				{
 					asset.SetNameReference(i, new(nameMap[i].Value.Replace(originalAssetName, newAssetName)));
-					System.Diagnostics.Debug.WriteLine(i);
 				}
 			}
 		}

@@ -261,10 +261,10 @@ namespace IcarusModManager.Model
 		}
 
 		public void CollectPatches(
-			IDictionary<string, List<JsonPatchData>> jsonPatches,
-			IDictionary<string, List<ActorPatchData>> actorPatches,
-			IDictionary<string, List<DataTablePatchData>> dataTablePatches,
-			IDictionary<string, List<AssetCopyPatchData>> assetCopyPatches,
+			IDictionary<string, List<PatchWrapper<JsonPatchData>>> jsonPatches,
+			IDictionary<string, List<PatchWrapper<ActorPatchData>>> actorPatches,
+			IDictionary<string, List<PatchWrapper<DataTablePatchData>>> dataTablePatches,
+			IDictionary<string, List<PatchWrapper<AssetCopyPatchData>>> assetCopyPatches,
 			GameFileManager fileManager)
 		{
 			foreach (ModPatchFile patchFile in mPatchFiles)
@@ -344,15 +344,15 @@ namespace IcarusModManager.Model
 			return $"{Name} {Version}";
 		}
 
-		private static void AddPatch<T>(ModPatchFile patch, IDictionary<string, List<T>> patches)
+		private void AddPatch<T>(ModPatchFile patch, IDictionary<string, List<PatchWrapper<T>>> patches)
 		{
-			List<T>? jsonPatchList;
+			List<PatchWrapper<T>>? jsonPatchList;
 			if (!patches.TryGetValue(patch.TargetPath, out jsonPatchList))
 			{
-				jsonPatchList = new List<T>();
+				jsonPatchList = new List<PatchWrapper<T>>();
 				patches.Add(patch.TargetPath, jsonPatchList);
 			}
-			jsonPatchList.Add((T)patch.PatchData);
+			jsonPatchList.Add(new(ID, (T)patch.PatchData));
 		}
 
 		private class ModPakFile
@@ -366,6 +366,29 @@ namespace IcarusModManager.Model
 				Name = name;
 				Data = data;
 			}
+		}
+	}
+
+	/// <summary>
+	/// Ties together a mod and patch data
+	/// </summary>
+	/// <typeparam name="T">The type of the patch data</typeparam>
+	internal class PatchWrapper<T>
+	{
+		/// <summary>
+		/// The ID of the mod that originated the patch
+		/// </summary>
+		public string ModId { get; }
+
+		/// <summary>
+		/// The patch data
+		/// </summary>
+		public T Patch { get; }
+
+		public PatchWrapper(string modId, T patch)
+		{
+			ModId = modId;
+			Patch = patch;
 		}
 	}
 }

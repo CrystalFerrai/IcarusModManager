@@ -206,10 +206,10 @@ namespace IcarusModManager
 			string modDirectory = Path.Combine(gameDirectory, "Icarus\\Content\\Paks\\Mods");
 			Directory.CreateDirectory(modDirectory);
 
-			Dictionary<string, List<JsonPatchData>> jsonPatches = new();
-			Dictionary<string, List<ActorPatchData>> actorPatches = new();
-			Dictionary<string, List<DataTablePatchData>> dataTablePatches = new();
-			Dictionary<string, List<AssetCopyPatchData>> AssetCopyPatches = new();
+			Dictionary<string, List<PatchWrapper<JsonPatchData>>> jsonPatches = new();
+			Dictionary<string, List<PatchWrapper<ActorPatchData>>> actorPatches = new();
+			Dictionary<string, List<PatchWrapper<DataTablePatchData>>> dataTablePatches = new();
+			Dictionary<string, List<PatchWrapper<AssetCopyPatchData>>> assetCopyPatches = new();
 
 			Dictionary<string, ModData> fileOverrides = new();
 			for (int i = 0; i < mModList.Count; ++i)
@@ -226,10 +226,10 @@ namespace IcarusModManager
 					jsonPatches.Remove(fileOverride);
 					actorPatches.Remove(fileOverride);
 					dataTablePatches.Remove(fileOverride);
-					AssetCopyPatches.Remove(fileOverride);
+					assetCopyPatches.Remove(fileOverride);
 				}
 
-				mod.CollectPatches(jsonPatches, actorPatches, dataTablePatches, AssetCopyPatches, fileManager);
+				mod.CollectPatches(jsonPatches, actorPatches, dataTablePatches, assetCopyPatches, fileManager);
 
 				mod.CopyPaks(modDirectory, i);
 			}
@@ -247,7 +247,7 @@ namespace IcarusModManager
 					list = new();
 					allDataPatches.Add(dataTablePatch.Key, list);
 				}
-				list.AddRange(dataTablePatch.Value);
+				list.AddRange(dataTablePatch.Value.Cast<object>());
 			}
 
 			// The data pak file has a bogus mount point, so everything gets loaded as if there is no mount point
@@ -255,8 +255,8 @@ namespace IcarusModManager
 			PakFile dataIntegrationFile = PakFile.Create((FString)dataIntegrationFileName, (FString)"../../../Icarus/Content/data/");
 			foreach (var pair in allDataPatches)
 			{
-				IEnumerable<JsonPatchData> fileJsonPatches = pair.Value.OfType<JsonPatchData>();
-				IEnumerable<DataTablePatchData> fileDataTablePatches = pair.Value.OfType<DataTablePatchData>();
+				IEnumerable<PatchWrapper<JsonPatchData>> fileJsonPatches = pair.Value.OfType<PatchWrapper<JsonPatchData>>();
+				IEnumerable<PatchWrapper<DataTablePatchData>> fileDataTablePatches = pair.Value.OfType<PatchWrapper<DataTablePatchData>>();
 
 				ReadOnlySpan<byte> sourceData;
 				if (fileOverrides.TryGetValue(pair.Key, out ModData? mod))
@@ -268,11 +268,11 @@ namespace IcarusModManager
 				string modifiedData = Encoding.UTF8.GetString(sourceData);
 				if (fileJsonPatches.Any())
 				{
-					modifiedData = JsonIntegrator.Integrate(modifiedData, fileJsonPatches.SelectMany(p => p.Patches));
+					modifiedData = JsonIntegrator.Integrate(modifiedData, fileJsonPatches.SelectMany(p => p.Patch.Patches));
 				}
 				if (fileDataTablePatches.Any())
 				{
-					modifiedData = DataTableIntegrator.Integrate(modifiedData, fileDataTablePatches.SelectMany(p => p.Patches));
+					modifiedData = DataTableIntegrator.Integrate(modifiedData, fileDataTablePatches.SelectMany(p => p.Patch.Patches));
 				}
 				dataIntegrationFile.AddEntry((FString)pair.Key, Encoding.UTF8.GetBytes(modifiedData));
 			}
@@ -283,60 +283,79 @@ namespace IcarusModManager
 			{
 				allAssetPatches.Add(actorPatch.Key, actorPatch.Value.Cast<object>().ToList());
 			}
-			foreach (var AssetCopyPatch in AssetCopyPatches)
+			foreach (var assetCopyPatch in assetCopyPatches)
 			{
 				List<object>? list;
-				if (!allAssetPatches.TryGetValue(AssetCopyPatch.Key, out list))
+				if (!allAssetPatches.TryGetValue(assetCopyPatch.Key, out list))
 				{
 					list = new();
-					allAssetPatches.Add(AssetCopyPatch.Key, list);
+					allAssetPatches.Add(assetCopyPatch.Key, list);
 				}
-				list.AddRange(AssetCopyPatch.Value);
+				list.AddRange(assetCopyPatch.Value.Cast<object>());
 			}
 
 			string assetIntegrationFileName = "999-ModIntegration_Assets_P.pak";
 			PakFile assetIntegrationFile = PakFile.Create((FString)assetIntegrationFileName, (FString)"../../../");
 			foreach (var pair in allAssetPatches)
 			{
-				IEnumerable<ActorPatchData> fileActorPatches = pair.Value.OfType<ActorPatchData>();
-				IEnumerable<AssetCopyPatchData> fileAssetCopyPatches = pair.Value.OfType<AssetCopyPatchData>();
+				IEnumerable<PatchWrapper<ActorPatchData>> fileActorPatches = pair.Value.OfType<PatchWrapper<ActorPatchData>>();
+				IEnumerable<PatchWrapper<AssetCopyPatchData>> fileAssetCopyPatches = pair.Value.OfType<PatchWrapper<AssetCopyPatchData>>();
 
 				string? exportsPath;
 
-				ReadOnlySpan<byte> sourceData;
-				ReadOnlySpan<byte> exportsData;
-				if (fileOverrides.TryGetValue(pair.Key, out ModData? mod))
+				ModData? overrideAssetMod = null;
+				ModData? overrideExportsMod = null;
+				UAsset originalAsset;
+				UAsset? overrideAsset = null;
+				if (fileOverrides.TryGetValue(pair.Key, out overrideAssetMod))
 				{
-					mod.GetFileOverrideData(pair.Key, out sourceData);
+					ReadOnlySpan<byte> sourceData;
+					ReadOnlySpan<byte> exportsData;
+					overrideAssetMod.GetFileOverrideData(pair.Key, out sourceData);
 					exportsPath = Path.ChangeExtension(pair.Key, ".uexp");
-					if (fileOverrides.TryGetValue(exportsPath, out ModData? mod2))
+					if (fileOverrides.TryGetValue(exportsPath, out overrideExportsMod))
 					{
-						mod2.GetFileOverrideData(exportsPath, out exportsData);
+						overrideExportsMod.GetFileOverrideData(exportsPath, out exportsData);
 					}
 					else
 					{
 						fileManager.ReadAssetFile(exportsPath, out exportsData);
 					}
-				}
-				else
-				{
-					fileManager.ReadFullAsset(pair.Key, out sourceData, out exportsPath, out exportsData, out string? bulkPath, out var bulkData);
+					overrideAsset = IntegratorUtil.ReadAsset(sourceData, exportsData);
 				}
 
-				UAsset asset = IntegratorUtil.ReadAsset(sourceData, exportsData);
+				{
+					ReadOnlySpan<byte> sourceData;
+					ReadOnlySpan<byte> exportsData;
+					fileManager.ReadFullAsset(pair.Key, out sourceData, out exportsPath, out exportsData, out string? _, out var _);
+					originalAsset = IntegratorUtil.ReadAsset(sourceData, exportsData);
+				}
 
 				if (fileActorPatches.Any())
 				{
-					ActorIntegrator.Integrate(asset, fileActorPatches.SelectMany(ap => ap.Components).ToArray());
+					UAsset asset = overrideAsset ?? originalAsset;
+
+					ActorIntegrator.Integrate(asset, fileActorPatches.SelectMany(ap => ap.Patch.Components).ToArray());
 					IntegratorUtil.WriteAsset(asset, pair.Key, exportsPath!, assetIntegrationFile);
 				}
 
 				string currentPath = pair.Key;
-				foreach(AssetCopyPatchData patch in fileAssetCopyPatches)
+				foreach(PatchWrapper<AssetCopyPatchData> patch in fileAssetCopyPatches)
 				{
-					AssetCopyIntegrator.Integrate(asset, currentPath, patch.NewPath);
-					IntegratorUtil.WriteAsset(asset, patch.NewPath, Path.ChangeExtension(patch.NewPath, ".uexp"), assetIntegrationFile);
-					currentPath = patch.NewPath;
+					UAsset asset;
+					if (overrideAssetMod is not null && overrideAssetMod.ID == patch.ModId)
+					{
+						// Do not use the asset from the same mod as the source for a copy
+						asset = originalAsset;
+					}
+					else
+					{
+						asset = overrideAsset ?? originalAsset;
+					}
+
+					AssetCopyIntegrator.Integrate(asset, currentPath, patch.Patch.NewPath);
+					IntegratorUtil.WriteAsset(asset, patch.Patch.NewPath, Path.ChangeExtension(patch.Patch.NewPath, ".uexp"), assetIntegrationFile);
+					currentPath = patch.Patch.NewPath;
 				}
 			}
 			assetIntegrationFile.Save(Path.Combine(modDirectory, assetIntegrationFileName));
