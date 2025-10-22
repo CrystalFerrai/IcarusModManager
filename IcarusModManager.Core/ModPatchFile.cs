@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using IcarusModManager.Integrator;
+using IcarusModManager.Core.Integrator;
 using Microsoft.AspNetCore.JsonPatch.Operations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
-namespace IcarusModManager.Model
+namespace IcarusModManager.Core
 {
 	/// <summary>
 	/// A file containing data about how to modify an existing game asset. A mod may contain
@@ -104,7 +104,7 @@ namespace IcarusModManager.Model
 	/// <summary>
 	/// Data associated with the Json ModPatchType
 	/// </summary>
-	internal class JsonPatchData
+	public class JsonPatchData
 	{
 		public List<List<Operation>> Patches { get; }
 
@@ -139,7 +139,7 @@ namespace IcarusModManager.Model
 	/// <summary>
 	/// Data associated with the Actor ModPatchType
 	/// </summary>
-	internal class ActorPatchData
+	public class ActorPatchData
 	{
 		public List<string> Components { get; }
 
@@ -168,7 +168,7 @@ namespace IcarusModManager.Model
 	/// <summary>
 	/// Data associated with the DataTable ModPatchType
 	/// </summary>
-	internal class DataTablePatchData
+	public class DataTablePatchData
 	{
 		public List<DataTableOperation> Patches { get; }
 
@@ -198,7 +198,7 @@ namespace IcarusModManager.Model
 	/// <summary>
 	/// Data associated with the AssetCopy ModPatchType
 	/// </summary>
-	internal class AssetCopyPatchData
+	public class AssetCopyPatchData
 	{
 		public string NewPath { get; }
 

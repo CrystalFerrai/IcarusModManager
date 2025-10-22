@@ -17,12 +17,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-namespace IcarusModManager.Utils
+namespace IcarusModManager.Core.Utils
 {
 	/// <summary>
 	/// Steam installer metadata file
 	/// </summary>
-	internal class SteamMetaFile
+	public class SteamMetaFile
 	{
 		/// <summary>
 		/// Gets the root object of the file
@@ -128,7 +128,7 @@ namespace IcarusModManager.Utils
 	/// <summary>
 	/// A named entry in a Steam installer metadata file
 	/// </summary>
-	internal class SteamMetaToken
+	public class SteamMetaToken
 	{
 		/// <summary>
 		/// The name of the token
@@ -149,7 +149,7 @@ namespace IcarusModManager.Utils
 	/// <summary>
 	/// An object in a Steam installer metadata file
 	/// </summary>
-	internal class SteamMetaObject : SteamMetaToken, IEnumerable<SteamMetaToken>, IReadOnlyCollection<SteamMetaToken>
+	public class SteamMetaObject : SteamMetaToken, IEnumerable<SteamMetaToken>, IReadOnlyCollection<SteamMetaToken>
 	{
 		/// <summary>
 		/// Gets the tokens within the object

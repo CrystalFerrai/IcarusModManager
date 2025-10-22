@@ -15,7 +15,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace IcarusModManager.Collections
+namespace IcarusModManager.Core.Collections
 {
 	/// <summary>
 	/// Represents a collection that is both enumerable and observable

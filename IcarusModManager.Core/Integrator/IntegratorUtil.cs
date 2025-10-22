@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using IcarusModManager.Utils;
+using IcarusModManager.Core.Utils;
 using System;
 using System.IO;
 using UAssetAPI;
 using UAssetAPI.UnrealTypes;
 
-namespace IcarusModManager.Integrator
+namespace IcarusModManager.Core.Integrator
 {
 	/// <summary>
 	/// Utility for use by asset integrators

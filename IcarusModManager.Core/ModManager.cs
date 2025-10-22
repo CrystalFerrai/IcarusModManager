@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using IcarusModManager.Collections;
-using IcarusModManager.Controls;
-using IcarusModManager.Integrator;
-using IcarusModManager.Model;
-using IcarusModManager.Utils;
+using IcarusModManager.Core.Collections;
+using IcarusModManager.Core.Integrator;
+using IcarusModManager.Core.Utils;
 using NetPak;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -30,16 +28,18 @@ using System.Text;
 using System.Windows;
 using UAssetAPI;
 
-namespace IcarusModManager
+namespace IcarusModManager.Core
 {
 	/// <summary>
 	/// Handles the management of game mods for the application
 	/// </summary>
-	internal class ModManager
+	public class ModManager
 	{
 		private static readonly string ModMetaPath;
 
 		private readonly ObservableList<ModData> mModList;
+
+		private readonly Logger mLogger;
 
 		/// <summary>
 		/// The list of mods currently being managed
@@ -51,9 +51,14 @@ namespace IcarusModManager
 			ModMetaPath = Path.Combine(Constants.LocalUserDirectory, "ModMeta.json");
 		}
 
-		public ModManager()
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="logger">For logging issues that occur while perforing operations</param>
+		public ModManager(Logger logger)
 		{
 			mModList = new ObservableList<ModData>();
+			mLogger = logger;
 		}
 
 		/// <summary>
@@ -88,7 +93,7 @@ namespace IcarusModManager
 
 					try
 					{
-						ModData mod = ModData.Load(path, false);
+						ModData mod = ModData.Load(path, mLogger, false);
 						modMap.Add(mod.FileName!, mod);
 					}
 					catch
@@ -134,7 +139,7 @@ namespace IcarusModManager
 				}
 				catch (Exception ex)
 				{
-					CustomMessageBox.Show(Application.Current.MainWindow, $"An error occured while loading the master mod metadata file. Some information about mod configuration has been lost.\n\n[{ex.GetType().FullName}] {ex.Message}", "Metadata Load Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+					mLogger.Warning("Metadata Load Failed", $"An error occured while loading the master mod metadata file. Some information about mod configuration has been lost.\n\n[{ex.GetType().FullName}] {ex.Message}");
 					mModList.Clear();
 					mModList.AddRange(modMap.Values);
 				}
@@ -186,7 +191,7 @@ namespace IcarusModManager
 			}
 			catch (Exception ex)
 			{
-				CustomMessageBox.Show(Application.Current.MainWindow, $"An error occured while saving the master mod metadata file.\n\n[{ex.GetType().FullName}] {ex.Message}", "Metadata Save Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+				mLogger.Warning("Metadata Save Failed", $"An error occured while saving the master mod metadata file.\n\n[{ex.GetType().FullName}] {ex.Message}");
 			}
 		}
 
@@ -229,7 +234,7 @@ namespace IcarusModManager
 					assetCopyPatches.Remove(fileOverride);
 				}
 
-				mod.CollectPatches(jsonPatches, actorPatches, dataTablePatches, assetCopyPatches, fileManager);
+				mod.CollectPatches(jsonPatches, actorPatches, dataTablePatches, assetCopyPatches, fileManager, mLogger);
 
 				mod.CopyPaks(modDirectory, i);
 			}
@@ -397,7 +402,7 @@ namespace IcarusModManager
 							{
 								File.Copy(path, newPath, true);
 
-								ModData mod = ModData.Load(newPath);
+								ModData mod = ModData.Load(newPath, mLogger);
 								int existing = mModList.IndexOf(m => mod.ID == m.ID);
 								if (existing < 0)
 								{
@@ -419,7 +424,7 @@ namespace IcarusModManager
 							}
 							catch (Exception ex)
 							{
-								CustomMessageBox.Show(Application.Current.MainWindow, $"An error occured while loading the mod file \"{fileName}\".\n\n[{ex.GetType().FullName}] {ex.Message}", "Mod Load Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+								mLogger.Warning("Mod Load Failed", $"An error occured while loading the mod file \"{fileName}\".\n\n[{ex.GetType().FullName}] {ex.Message}");
 								++failed;
 							}
 						}
@@ -491,7 +496,7 @@ namespace IcarusModManager
 			}
 			catch (Exception ex)
 			{
-				CustomMessageBox.Show(Application.Current.MainWindow, $"An error occurred while trying to remove the mod \"{data.Name}\".\n\n[{ex.GetType().FullName}] {ex.Message}", "Remove Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+				mLogger.Warning("Remove Failed", $"An error occurred while trying to remove the mod \"{data.Name}\".\n\n[{ex.GetType().FullName}] {ex.Message}");
 			}
 		}
 

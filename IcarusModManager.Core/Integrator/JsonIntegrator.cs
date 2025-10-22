@@ -20,7 +20,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 
-namespace IcarusModManager.Integrator
+namespace IcarusModManager.Core.Integrator
 {
 	/// <summary>
 	/// Applies serialized patches to a serialized json object or array

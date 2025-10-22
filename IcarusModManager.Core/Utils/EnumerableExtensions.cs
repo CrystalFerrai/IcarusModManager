@@ -15,7 +15,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IcarusModManager.Utils
+namespace IcarusModManager.Core.Utils
 {
 	/// <summary>
 	/// Extension methods for enumerables

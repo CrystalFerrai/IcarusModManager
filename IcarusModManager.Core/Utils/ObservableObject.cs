@@ -16,12 +16,12 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace IcarusModManager.Utils
+namespace IcarusModManager.Core.Utils
 {
 	/// <summary>
 	/// A base class for things that need to notify when their property values have changed
 	/// </summary>
-	internal abstract class ObservableObject : INotifyPropertyChanging, INotifyPropertyChanged
+	public abstract class ObservableObject : INotifyPropertyChanging, INotifyPropertyChanged
 	{
 		/// <summary>
 		/// Event fired when the the value of a property is about to change

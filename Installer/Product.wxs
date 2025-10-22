@@ -42,6 +42,15 @@ limitations under the License.
 				<File Id="IcarusModManager.deps.json" Source="..\IcarusModManager\bin\Release\Publish\IcarusModManager.deps.json" />
 				<File Id="IcarusModManager.runtimeconfig.json" Source="..\IcarusModManager\bin\Release\Publish\IcarusModManager.runtimeconfig.json" />
 			</Component>
+			<Component Id="IcarusModManager.Core" Guid="C19FC226-79E1-428C-B281-61CAEEFE446A">
+				<File Id="IcarusModManager.Core.dll" Source="..\IcarusModManager\bin\Release\Publish\IcarusModManager.Core.dll" Checksum="yes"/>
+			</Component>
+			<Component Id="IcarusModManagerCLI" Guid="8E9F3143-43EE-4514-A8E1-65E972DEA713">
+				<File Id="IcarusModManagerCLI.exe" Source="..\IcarusModManager.CLI\bin\Release\Publish\IcarusModManagerCLI.exe" KeyPath="yes" Checksum="yes" />
+				<File Id="IcarusModManagerCLI.dll" Source="..\IcarusModManager.CLI\bin\Release\Publish\IcarusModManagerCLI.dll" Checksum="yes"/>
+				<File Id="IcarusModManagerCLI.deps.json" Source="..\IcarusModManager.CLI\bin\Release\Publish\IcarusModManagerCLI.deps.json" />
+				<File Id="IcarusModManagerCLI.runtimeconfig.json" Source="..\IcarusModManager.CLI\bin\Release\Publish\IcarusModManagerCLI.runtimeconfig.json" />
+			</Component>
 			<Component Id="Microsoft.AspNetCore.JsonPatch" Guid="14E91414-61D6-46BC-9A8F-0FC5CBEDA192">
 				<File Id="Microsoft.AspNetCore.JsonPatch.dll" Source="..\IcarusModManager\bin\Release\Publish\Microsoft.AspNetCore.JsonPatch.dll" KeyPath="yes" Checksum="yes" />
 			</Component>
@@ -86,6 +95,8 @@ limitations under the License.
 
 		<Feature Id="MainApplication" Title="Main Application" Level="1">
 			<ComponentRef Id="IcarusModManager" />
+			<ComponentRef Id="IcarusModManager.Core" />
+			<ComponentRef Id="IcarusModManagerCLI" />
 			<ComponentRef Id="Microsoft.AspNetCore.JsonPatch" />
 			<ComponentRef Id="Microsoft.WindowsAPICodePack" />
 			<ComponentRef Id="Microsoft.WindowsAPICodePack.Shell" />

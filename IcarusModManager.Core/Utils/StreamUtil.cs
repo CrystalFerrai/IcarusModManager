@@ -14,7 +14,7 @@
 
 using System.IO;
 
-namespace IcarusModManager.Utils
+namespace IcarusModManager.Core.Utils
 {
 	/// <summary>
 	/// Extension methods for streams

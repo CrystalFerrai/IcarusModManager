@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using IcarusModManager.Collections;
 using IcarusModManager.Controls;
-using IcarusModManager.Model;
+using IcarusModManager.Core;
+using IcarusModManager.Core.Collections;
 using IcarusModManager.Utils;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
@@ -34,6 +34,8 @@ namespace IcarusModManager
 	/// </summary>
 	internal class MainWindowVM : ViewModelBase
 	{
+		private readonly Logger mLogger;
+
 		private readonly Settings mSettings;
 
 		private readonly ModManager mModManager;
@@ -122,11 +124,13 @@ namespace IcarusModManager
 			Version version = Assembly.GetExecutingAssembly().GetName().Version!;
 			WindowTitle = $"Icarus Mod Manager {version.ToString(3)}";
 
+			mLogger = new MessageBoxLogger();
+
 			mSettings = new Settings();
-			mModManager = new ModManager();
+			mModManager = new ModManager(mLogger);
 			mResetStatusTimer = new DispatcherTimer(TimeSpan.FromSeconds(10), DispatcherPriority.Normal, (s, e) => { StatusMessage = string.Empty; mResetStatusTimer!.Stop(); }, Dispatcher.CurrentDispatcher) { IsEnabled = false };
 
-			mSettings.Load();
+			mSettings.Load(mLogger);
 			mModManager.Load();
 
 			mModManager.ModList.CollectionChanged += ModList_CollectionChanged;
@@ -227,7 +231,7 @@ namespace IcarusModManager
 			{
 				if (DialogUtil.ShowDialog("Settings", settingsVm) == true)
 				{
-					mSettings.Save();
+					mSettings.Save(mLogger);
 				}
 			}
 		}

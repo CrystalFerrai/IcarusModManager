@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using IcarusModManager.Utils;
+using IcarusModManager.Core.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace IcarusModManager.Collections
+namespace IcarusModManager.Core.Collections
 {
 	/// <summary>
 	/// An observable generic list

@@ -28,7 +28,7 @@ using UAssetAPI.PropertyTypes.Objects;
 using UAssetAPI.PropertyTypes.Structs;
 using UAssetAPI.UnrealTypes;
 
-namespace IcarusModManager.Integrator
+namespace IcarusModManager.Core.Integrator
 {
 	/// <summary>
 	/// Modifies a cooked actor UAsset, adding a list of components (by name) to it

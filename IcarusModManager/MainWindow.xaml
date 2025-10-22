@@ -23,7 +23,7 @@ limitations under the License.
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     mc:Ignorable="d"
     xmlns:local="clr-namespace:IcarusModManager"
-	xmlns:model="clr-namespace:IcarusModManager.Model"
+	xmlns:model="clr-namespace:IcarusModManager.Core;assembly=IcarusModManager.Core"
 	xmlns:c="clr-namespace:IcarusModManager.Converters"
     Title="{Binding WindowTitle}"
     Width="550"

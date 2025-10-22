@@ -18,12 +18,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace IcarusModManager.Integrator
+namespace IcarusModManager.Core.Integrator
 {
 	/// <summary>
 	/// Provides access to all of the source (unmodded) asset files for the Icarus game.
 	/// </summary>
-	internal class GameFileManager : IDisposable
+	public class GameFileManager : IDisposable
 	{
 		private static readonly Regex sGetPakIndexRegex;
 

@@ -12,20 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using IcarusModManager.Controls;
-using IcarusModManager.Utils;
+using IcarusModManager.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Windows;
 
-namespace IcarusModManager
+namespace IcarusModManager.Core
 {
 	/// <summary>
 	/// Application user settings
 	/// </summary>
-	internal class Settings
+	public class Settings
 	{
 		// This class uses reflection to read and write all public properties to/from disk. This means properties are
 		// persisted automatically. However, only simple property types that can be converted from a string are supported.
@@ -53,7 +52,8 @@ namespace IcarusModManager
 		/// <summary>
 		/// Loads settings from disk
 		/// </summary>
-		public void Load()
+		/// <param name="logger">For logging issues that occur</param>
+		public void Load(Logger logger)
 		{
 			if (File.Exists(sSavePath))
 			{
@@ -78,7 +78,7 @@ namespace IcarusModManager
 				}
 				catch (Exception ex)
 				{
-					CustomMessageBox.Show(Application.Current.MainWindow, $"An error occurred while attempting to load application settings. All settings are now at their default values.\n\n[{ex.GetType().FullName}] {ex.Message}", "Unable to Load Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
+					logger.Warning("Unable to Load Settings", $"An error occurred while attempting to load application settings. All settings are now at their default values.\n\n[{ex.GetType().FullName}] {ex.Message}");
 				}
 			}
 
@@ -94,7 +94,8 @@ namespace IcarusModManager
 		/// <summary>
 		/// Saves settings to disk
 		/// </summary>
-		public void Save()
+		/// <param name="logger">For logging issues that occur</param>
+		public void Save(Logger logger)
 		{
 			try
 			{
@@ -111,7 +112,7 @@ namespace IcarusModManager
 			}
 			catch (Exception ex)
 			{
-				CustomMessageBox.Show(Application.Current.MainWindow, $"An error occurred while attempting to save application settings. You can try again fromt he settings dialog.\n\n[{ex.GetType().FullName}] {ex.Message}", "Unable to Save Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
+				logger.Warning("Unable to Save Settings", $"An error occurred while attempting to save application settings. You can try again from the settings dialog.\n\n[{ex.GetType().FullName}] {ex.Message}");
 			}
 		}
 	}

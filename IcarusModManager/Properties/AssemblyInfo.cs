@@ -16,13 +16,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 
-[assembly: AssemblyProduct("IcarusModManager")]
-[assembly: AssemblyCompany("Crystal Ferrai")]
-[assembly: AssemblyCopyright("Copyright © 2022 Crystal Ferrai")]
-[assembly: AssemblyDescription("IcarusModManager")]
-[assembly: AssemblyVersion("1.1.0.0")]
-[assembly: AssemblyFileVersion("1.1.0.0")]
-
 [assembly: ComVisible(false)]
 [assembly: Guid("faf18bf7-5fb1-4cb3-9b7a-bfc6aa5febbd")]
 

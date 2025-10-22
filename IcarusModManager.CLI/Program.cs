@@ -12,30 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
+using IcarusModManager.Core;
 
-namespace IcarusModManager
+namespace IcarusModManager.CLI
 {
 	/// <summary>
-	/// Various constants used by the application
+	/// The main CLI program
 	/// </summary>
-	internal static class Constants
+	internal class Program
 	{
 		/// <summary>
-		/// The path to the directory where user data is stored for this application
+		/// Entry point
 		/// </summary>
-		public static string LocalUserDirectory { get; }
-
-		/// <summary>
-		/// The location to store mods that are currently being managed by this application
-		/// </summary>
-		public static string ModStorageDirectory { get; }
-
-		static Constants()
+		private static int Main(string[] args)
 		{
-			LocalUserDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IcarusModManager");
-			ModStorageDirectory = Path.Combine(LocalUserDirectory, "Mods");
+			Logger logger = new ConsoleLogger();
+
+			if (args.Length == 0)
+			{
+				Options.PrintUsage(logger);
+				return OnExit(0);
+			}
+
+			Options? options;
+			if (!Options.TryParse(args, logger, out options))
+			{
+				return OnExit(1);
+			}
+
+			ModAgent agent = new(options);
+			if (!agent.Run(logger))
+			{
+				return OnExit(1);
+			}
+
+			return OnExit(0);
+		}
+
+		private static int OnExit(int code)
+		{
+			if (System.Diagnostics.Debugger.IsAttached)
+			{
+				Console.ReadKey(true);
+			}
+			return code;
 		}
 	}
 }

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using IcarusModManager.Controls;
+using IcarusModManager.Core;
+using IcarusModManager.Core.Utils;
 using IcarusModManager.Utils;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.ComponentModel;

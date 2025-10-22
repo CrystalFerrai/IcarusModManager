@@ -21,7 +21,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 
-namespace IcarusModManager.Integrator
+namespace IcarusModManager.Core.Integrator
 {
 	/// <summary>
 	/// Applies serialized patches to a Json serialized data table
@@ -133,7 +133,7 @@ namespace IcarusModManager.Integrator
 		}
 	}
 
-	internal class DataTableOperation
+	public class DataTableOperation
 	{
 		[JsonProperty("op", Order = 0, Required = Required.Always)]
 		public DataTableOperationType Type { get; set; }
@@ -158,7 +158,7 @@ namespace IcarusModManager.Integrator
 		}
 	}
 
-	internal enum DataTableOperationType
+	public enum DataTableOperationType
 	{
 		None,
 		Add,

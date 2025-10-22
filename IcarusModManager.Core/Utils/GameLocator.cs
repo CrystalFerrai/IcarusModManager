@@ -16,12 +16,12 @@ using Microsoft.Win32;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace IcarusModManager.Utils
+namespace IcarusModManager.Core.Utils
 {
 	/// <summary>
 	/// Utility for automatically locating the Icarus game installation directory
 	/// </summary>
-	internal static class GameLocator
+	public static class GameLocator
 	{
 		private const string IcarusAppId = "1149460";
 

@@ -18,7 +18,7 @@ using System.Linq;
 using UAssetAPI;
 using UAssetAPI.UnrealTypes;
 
-namespace IcarusModManager.Integrator
+namespace IcarusModManager.Core.Integrator
 {
 	/// <summary>
 	/// Updates self references within a UAsset to use a new path

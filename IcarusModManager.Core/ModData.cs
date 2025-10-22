@@ -12,25 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using IcarusModManager.Controls;
-using IcarusModManager.Integrator;
-using IcarusModManager.Utils;
+using IcarusModManager.Core.Integrator;
+using IcarusModManager.Core.Utils;
 using NetPak;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
 using System.Text;
-using System.Windows;
 
-namespace IcarusModManager.Model
+namespace IcarusModManager.Core
 {
 	/// <summary>
 	/// The data for a game mod
 	/// </summary>
-	internal class ModData : ObservableObject
+	public class ModData : ObservableObject
 	{
 		private readonly List<ModPakFile> mPakFiles;
 
@@ -132,17 +127,18 @@ namespace IcarusModManager.Model
 		/// Loads a mod from disk
 		/// </summary>
 		/// <param name="path">The path to the mod file. Must be a zip or pak file.</param>
-		/// <param name="notifyOnError">Whether to show a message box to the user if an error occurs during load</param>
-		public static ModData Load(string path, bool notifyOnError = true)
+		/// <param name="logger">For logging any errors</param>
+		/// <param name="notifyOnError">Whether to log errors that occur during load</param>
+		public static ModData Load(string path, Logger logger, bool notifyOnError = true)
 		{
 			FileInfo info = new FileInfo(path);
 			using (FileStream file = File.OpenRead(path))
 			{
-				return LoadFrom(file, Path.GetFileName(path), info.LastWriteTime, notifyOnError);
+				return LoadFrom(file, Path.GetFileName(path), info.LastWriteTime, logger, notifyOnError);
 			}
 		}
 
-		private static ModData LoadFrom(Stream stream, string fileName, DateTime lastModified, bool notifyOnError = true)
+		private static ModData LoadFrom(Stream stream, string fileName, DateTime lastModified, Logger logger, bool notifyOnError = true)
 		{
 			string fallbackId = Path.GetFileNameWithoutExtension(fileName);
 
@@ -203,7 +199,7 @@ namespace IcarusModManager.Model
 						}
 						catch (Exception ex)
 						{
-							if (notifyOnError) CustomMessageBox.Show($"An error occurred while attempting to read mod.info from {fileName}. Mod loading will continue, but this mod will be missing meta information.\n\n[{ex.GetType().FullName}] {ex.Message}", "Metadata load failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+							if (notifyOnError) logger.Warning("Metadata load failed", $"An error occurred while attempting to read mod.info from {fileName}. Mod loading will continue, but this mod will be missing meta information.\n\n[{ex.GetType().FullName}] {ex.Message}");
 
 							mod = new ModData(fallbackId)
 							{
@@ -249,7 +245,7 @@ namespace IcarusModManager.Model
 						}
 						catch (Exception ex)
 						{
-							if (notifyOnError) CustomMessageBox.Show($"An error occurred while attempting to read {entry} from {fileName}. This mod will likely not work properly.\n\n[{ex.GetType().FullName}] {ex.Message}", "Mod patch load failed", MessageBoxButton.OK, MessageBoxImage.Error);
+							if (notifyOnError) logger.Error("Mod patch load failed", $"An error occurred while attempting to read {entry} from {fileName}. This mod will likely not work properly.\n\n[{ex.GetType().FullName}] {ex.Message}");
 						}
 					}
 
@@ -265,15 +261,16 @@ namespace IcarusModManager.Model
 			IDictionary<string, List<PatchWrapper<ActorPatchData>>> actorPatches,
 			IDictionary<string, List<PatchWrapper<DataTablePatchData>>> dataTablePatches,
 			IDictionary<string, List<PatchWrapper<AssetCopyPatchData>>> assetCopyPatches,
-			GameFileManager fileManager)
+			GameFileManager fileManager,
+			Logger logger)
 		{
+			List<string> missingFiles = new();
 			foreach (ModPatchFile patchFile in mPatchFiles)
 			{
 				if (!fileManager.HasFile(patchFile.TargetPath))
 				{
-					MessageBoxResult result = CustomMessageBox.Show($"Mod \"{Name}\" is trying to patch the file {patchFile.TargetPath}, but that file could not be located. Attempt to patch remaining files from this mod?", "Mod patch load failed", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-					if (result == MessageBoxResult.Yes) continue;
-					break;
+					missingFiles.Add(patchFile.TargetPath);
+					continue;
 				}
 
 				switch (patchFile.Type)
@@ -291,6 +288,10 @@ namespace IcarusModManager.Model
 						AddPatch(patchFile, assetCopyPatches);
 						break;
 				}
+			}
+			if (missingFiles.Any())
+			{
+				logger.Warning("Mod patch load failed", $"Mod \"{Name}\" is trying to patch the following files which could not be located. This mod may not function properly.\n\n{string.Join('\n', missingFiles)}");
 			}
 		}
 
@@ -373,7 +374,7 @@ namespace IcarusModManager.Model
 	/// Ties together a mod and patch data
 	/// </summary>
 	/// <typeparam name="T">The type of the patch data</typeparam>
-	internal class PatchWrapper<T>
+	public class PatchWrapper<T>
 	{
 		/// <summary>
 		/// The ID of the mod that originated the patch
