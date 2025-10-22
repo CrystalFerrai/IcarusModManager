@@ -16,7 +16,7 @@ limitations under the License.
 -->
 
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-	<Product Id="6D145147-0748-4801-B521-F1BC0F710A98" Name="IcarusModManager" Language="1033" Version="1.1.0.0" Manufacturer="Crystal" UpgradeCode="3FA0329A-4BCD-4AE0-A214-EBB975037933">
+	<Product Id="6D145147-0748-4801-B521-F1BC0F710A98" Name="IcarusModManager" Language="1033" Version="1.2.0.0" Manufacturer="Crystal" UpgradeCode="3FA0329A-4BCD-4AE0-A214-EBB975037933">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
