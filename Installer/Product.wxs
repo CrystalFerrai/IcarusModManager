@@ -27,7 +27,9 @@ limitations under the License.
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFiles64Folder">
-				<Directory Id="INSTALLFOLDER" Name="IcarusModManager" />
+				<Directory Id="INSTALLFOLDER" Name="IcarusModManager">
+					<Directory Id="DOCSFOLDER" Name="docs" />
+				</Directory>
 			</Directory>
 			<Directory Id="ProgramMenuFolder">
 				<Directory Id="MENUFOLDER" Name="IcarusModManager"/>
@@ -71,6 +73,17 @@ limitations under the License.
 			<Component Id="UAssetAPI" Guid="ED9F445C-B943-473F-AF06-1D5E2A858ECB">
 				<File Id="UAssetAPI.dll" Source="..\IcarusModManager\bin\Release\Publish\UAssetAPI.dll" KeyPath="yes" Checksum="yes" />
 			</Component>
+			<Component Id="RootDocs" Guid="64FD9E19-B40B-4393-9FF2-A048213134FF">
+				<File Id="readme.md" Source="..\readme.md" />
+				<File Id="license.txt" Source="..\license.txt" />
+			</Component>
+		</DirectoryRef>
+
+		<DirectoryRef Id="DOCSFOLDER">
+			<Component Id="Docs" Guid="2EA60247-499B-4FC1-84D7-542523CC5F8B">
+				<File Id="docs_readme.md" Source="..\docs\readme.md" />
+				<File Id="docs_creating_mods.md" Source="..\docs\creating_mods.md" />
+			</Component>
 		</DirectoryRef>
 
 		<DirectoryRef Id="MENUFOLDER">
@@ -103,6 +116,8 @@ limitations under the License.
 			<ComponentRef Id="NetPak" />
 			<ComponentRef Id="Newtonsoft.Json" />
 			<ComponentRef Id="UAssetAPI" />
+			<ComponentRef Id="RootDocs" />
+			<ComponentRef Id="Docs" />
 			<ComponentRef Id="StartMenuShortcut" />
 			<ComponentRef Id="DesktopShortcut" />
 		</Feature>
