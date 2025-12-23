@@ -72,6 +72,7 @@ limitations under the License.
 			</Component>
 			<Component Id="UAssetAPI" Guid="ED9F445C-B943-473F-AF06-1D5E2A858ECB">
 				<File Id="UAssetAPI.dll" Source="..\IcarusModManager\bin\Release\Publish\UAssetAPI.dll" KeyPath="yes" Checksum="yes" />
+				<File Id="LICENSE_UAssetAPI" Source="..\UAssetAPI\LICENSE" LongName="LICENSE-UAssetAPI" />
 			</Component>
 			<Component Id="RootDocs" Guid="64FD9E19-B40B-4393-9FF2-A048213134FF">
 				<File Id="readme.md" Source="..\readme.md" />
