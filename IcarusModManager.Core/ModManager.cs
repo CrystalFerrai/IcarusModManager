@@ -340,7 +340,7 @@ namespace IcarusModManager.Core
 				{
 					UAsset asset = overrideAsset ?? originalAsset;
 
-					ActorIntegrator.Integrate(asset, fileActorPatches.SelectMany(ap => ap.Patch.Components).ToArray());
+					ActorIntegrator.Integrate(asset, fileActorPatches.SelectMany(ap => ap.Patch.Properties),  fileActorPatches.SelectMany(ap => ap.Patch.Components));
 					IntegratorUtil.WriteAsset(asset, pair.Key, exportsPath!, assetIntegrationFile);
 				}
 

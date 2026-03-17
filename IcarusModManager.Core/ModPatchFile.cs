@@ -14,6 +14,7 @@
 
 using IcarusModManager.Core.Integrator;
 using Microsoft.AspNetCore.JsonPatch.Operations;
+using Microsoft.CodeAnalysis.CodeStyle;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -62,22 +63,22 @@ namespace IcarusModManager.Core
 		public static ModPatchFile Parse(string data)
 		{
 			JObject? dataObject = JsonConvert.DeserializeObject(data) as JObject;
-			if (dataObject == null) throw new FormatException($"Expected root of file to be a json object");
+			if (dataObject == null) throw new InvalidDataException($"Expected root of file to be a json object");
 
 			// Verify schema version
 			{
 				JProperty? schemaVersionProperty = dataObject.Property("schema_version");
-				if (schemaVersionProperty == null) throw new FormatException("Missing required property 'schema_version'");
+				if (schemaVersionProperty == null) throw new InvalidDataException("Missing required property 'schema_version'");
 				int schemaVersion = schemaVersionProperty.Value.Value<int>();
-				if (schemaVersion != 1) throw new FormatException($"Unknown schema version: {schemaVersion}. Supported schema version: 1");
+				if (schemaVersion != 1) throw new InvalidDataException($"Unknown schema version: {schemaVersion}. Supported schema version: 1");
 			}
 
-			string target = dataObject["target"]?.Value<string>() ?? throw new FormatException("Missing required property 'target'");
-			string typeString = dataObject["type"]?.Value<string>() ?? throw new FormatException("Missing required property 'type'");
-			if (!Enum.TryParse(typeString, out ModPatchType modType)) throw new FormatException($"'{typeString}' is not a valid value for property 'type'");
+			string target = dataObject["target"]?.Value<string>() ?? throw new InvalidDataException("Missing required property 'target'");
+			string typeString = dataObject["type"]?.Value<string>() ?? throw new InvalidDataException("Missing required property 'type'");
+			if (!Enum.TryParse(typeString, out ModPatchType modType)) throw new InvalidDataException($"'{typeString}' is not a valid value for property 'type'");
 
 			object patchData;
-			JObject patchDataObject = dataObject["data"]?.Value<JObject>() ?? throw new FormatException($"'data' property either missing or not valid for patch type '{typeString}'");
+			JObject patchDataObject = dataObject["data"]?.Value<JObject>() ?? throw new InvalidDataException($"'data' property either missing or not valid for patch type '{typeString}'");
 			switch (modType)
 			{
 				case ModPatchType.Json:
@@ -94,7 +95,7 @@ namespace IcarusModManager.Core
 					break;
 				case ModPatchType.Invalid:
 				default:
-					throw new FormatException($"'{typeString}' is not a valid value for property 'type'");
+					throw new InvalidDataException($"'{typeString}' is not a valid value for property 'type'");
 			}
 
 			return new ModPatchFile(target, modType, patchData);
@@ -119,16 +120,16 @@ namespace IcarusModManager.Core
 		/// <param name="patchObj">A Json object containing patch data</param>
 		public static JsonPatchData Read(JObject patchObj)
 		{
-			JArray patchList = patchObj["patches"]?.Value<JArray>() ?? throw new FormatException("'data' property not valid for patch type 'Json'");
+			JArray patchList = patchObj["patches"]?.Value<JArray>() ?? throw new InvalidDataException("'data' property not valid for patch type 'Json'");
 
 			JsonPatchData data = new JsonPatchData();
 			foreach (JToken? patchToken in patchList)
 			{
-				JArray patch = patchToken as JArray ?? throw new FormatException("'data' property not valid for patch type 'Json'");
+				JArray patch = patchToken as JArray ?? throw new InvalidDataException("'data' property not valid for patch type 'Json'");
 				List<Operation> operations = new List<Operation>();
 				foreach (var operation in patch)
 				{
-					operations.Add(operation.ToObject<Operation>() ?? throw new FormatException("'data' property not valid for patch type 'Json'"));
+					operations.Add(operation.ToObject<Operation>() ?? throw new InvalidDataException("'data' property not valid for patch type 'Json'"));
 				}
 				data.Patches.Add(operations);
 			}
@@ -141,11 +142,14 @@ namespace IcarusModManager.Core
 	/// </summary>
 	public class ActorPatchData
 	{
+		public List<ActorProperty> Properties { get; }
+
 		public List<string> Components { get; }
 
 		public ActorPatchData()
 		{
-			Components = new List<string>();
+			Properties = new();
+			Components = new();
 		}
 
 		/// <summary>
@@ -154,12 +158,31 @@ namespace IcarusModManager.Core
 		/// <param name="patchObj">A Json object containing patch data</param>
 		public static ActorPatchData Read(JObject patchObj)
 		{
-			JArray patchList = patchObj["components"]?.Value<JArray>() ?? throw new FormatException("'data' property not valid for patch type 'Actor'");
+			JArray? propertyList = patchObj["properties"]?.Value<JArray>();
+			JArray? componentList = patchObj["components"]?.Value<JArray>();
+			if (propertyList is null && componentList is null) throw new InvalidDataException("'data' property not valid for patch type 'Actor'");
 
 			ActorPatchData data = new ActorPatchData();
-			foreach (JToken? component in patchList)
+			if (propertyList is not null)
 			{
-				data.Components.Add(component?.ToObject<string>() ?? throw new FormatException("'data' property not valid for patch type 'Actor'"));
+				foreach (JToken? property in propertyList)
+				{
+					JObject? propertyObj = property as JObject;
+					if (propertyObj is null) throw new InvalidDataException("'properties' property not valid for patch type 'Actor'");
+
+					string name = propertyObj["name"]?.Value<string>() ?? throw new InvalidDataException("'properties' property not valid for patch type 'Actor'");
+					string type = propertyObj["type"]?.Value<string>() ?? throw new InvalidDataException("'properties' property not valid for patch type 'Actor'");
+					JValue value = propertyObj["value"]?.Value<JValue>() ?? throw new InvalidDataException("'properties' property not valid for patch type 'Actor'");
+
+					data.Properties.Add(new(name, type, value));
+				}
+			}
+			if (componentList is not null)
+			{
+				foreach (JToken? component in componentList)
+				{
+					data.Components.Add(component?.ToObject<string>() ?? throw new InvalidDataException("'components' property not valid for patch type 'Actor'"));
+				}
 			}
 			return data;
 		}
@@ -215,6 +238,39 @@ namespace IcarusModManager.Core
 		{
 			string newPath = patchObj["path"]?.Value<string>() ?? throw new FormatException("'data' property not valid for patch type 'AssetCopy'");
 			return new AssetCopyPatchData(newPath);
+		}
+	}
+
+	/// <summary>
+	/// Property for an actor patch
+	/// </summary>
+	public struct ActorProperty
+	{
+		/// <summary>
+		/// The name of the property
+		/// </summary>
+		public string Name;
+
+		/// <summary>
+		/// The property type name. Must be a UE property type like IntProperty or StrProperty, case sensitive
+		/// </summary>
+		public string Type;
+
+		/// <summary>
+		/// The property value
+		/// </summary>
+		public JValue Value;
+
+		public ActorProperty(string name, string type, JValue value)
+		{
+			Name = name;
+			Type = type;
+			Value = value;
+		}
+
+		public override string ToString()
+		{
+			return Name;
 		}
 	}
 

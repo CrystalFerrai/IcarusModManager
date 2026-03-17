@@ -18,9 +18,13 @@
 // AstroModIntegrator is under the MIT license. A copy can be found at
 // https://github.com/AstroTechies/AstroModIntegrator/blob/master/LICENSE
 
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Reflection;
+using System.Xml.Linq;
 using UAssetAPI;
 using UAssetAPI.ExportTypes;
 using UAssetAPI.FieldTypes;
@@ -35,6 +39,8 @@ namespace IcarusModManager.Core.Integrator
 	/// </summary>
 	internal static class ActorIntegrator
 	{
+		private static Assembly sUAssetAPIAssembly;
+
 		private static readonly Export sRefTemplate;
 		private static readonly Export sRefSCSNode;
 
@@ -47,6 +53,8 @@ namespace IcarusModManager.Core.Integrator
 			// 
 			// [/Script/Engine.StreamingSettings]
 			// s.EventDrivenLoaderEnabled=False
+
+			sUAssetAPIAssembly = AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name!.Equals("UAssetAPI"));
 
 			UAsset asset = new(EngineVersion.VER_UE4_27);
 
@@ -64,12 +72,15 @@ namespace IcarusModManager.Core.Integrator
 		/// Performs an integration
 		/// </summary>
 		/// <param name="asset">The actor to modify</param>
+		/// <param name="propertyOverrides">Override the default value of the given properties</param>
 		/// <param name="newComponents">A list of asset paths of actor components to add to the actor</param>
 		/// <returns>The actor asset with the components added</returns>
-		public static void Integrate(UAsset asset, params string[] newComponents)
+		public static void Integrate(UAsset asset, IEnumerable<ActorProperty>? propertyOverrides, IEnumerable<string>? newComponents)
 		{
-			if (newComponents == null) throw new ArgumentNullException(nameof(newComponents));
-			if (newComponents.Length == 0) throw new ArgumentException("Must pass at least one component", nameof(newComponents));
+			if ((propertyOverrides is null || !propertyOverrides.Any()) && (newComponents is null || !newComponents.Any()))
+			{
+				throw new ArgumentException("Must specify property overrides and/or new components");
+			}
 
 			int scsLocation = -1;
 			int classLocation = -1;
@@ -99,6 +110,111 @@ namespace IcarusModManager.Core.Integrator
 			if (classLocation < 0) throw new FormatException("Unable to find BlueprintGeneratedClass");
 			if (defaultObjectLocation < 0) throw new FormatException("Unable to find class default object");
 
+			NormalExport defaultObjectExport = (NormalExport)asset.Exports[defaultObjectLocation];
+
+			if (propertyOverrides is not null)
+			{
+				IntegrateProperties(asset, propertyOverrides, defaultObjectExport);
+			}
+
+			if (newComponents is not null)
+			{
+				IntegrateComponents(asset, newComponents, scsLocation, classLocation, ref scsNodeOffset, defaultObjectExport);
+			}
+		}
+
+		private static void IntegrateProperties(UAsset asset, IEnumerable<ActorProperty> propertyOverrides, NormalExport defaultObjectExport)
+		{
+			Dictionary<string, PropertyData> propertyMap = defaultObjectExport.Data.ToDictionary(p => p.Name.Value.Value, p => p);
+			foreach (ActorProperty prop in propertyOverrides)
+			{
+				PropertyData? property;
+				if (!propertyMap.TryGetValue(prop.Name, out property))
+				{
+					Type? dataType = sUAssetAPIAssembly.GetType($"UAssetAPI.PropertyTypes.Objects.{prop.Type}Data");
+					if (dataType is null) dataType = sUAssetAPIAssembly.GetType($"UAssetAPI.PropertyTypes.Structs.{prop.Type}Data");
+					if (dataType is null) throw new NotSupportedException($"The property type {prop.Type} could not be located.");
+
+					property = (PropertyData)Activator.CreateInstance(dataType, FName.FromString(asset, prop.Name))!;
+					defaultObjectExport.Data.Add(property);
+				}
+
+				switch (prop.Type)
+				{
+					case "BoolProperty":
+						((BoolPropertyData)property).Value = (bool)Convert.ChangeType(prop.Value, typeof(bool));
+						break;
+					case "FloatProperty":
+						((FloatPropertyData)property).Value = (float)Convert.ChangeType(prop.Value, typeof(float));
+						break;
+					case "DoubleProperty":
+						((DoublePropertyData)property).Value = (double)Convert.ChangeType(prop.Value, typeof(double));
+						break;
+					case "Int8Property":
+						((Int8PropertyData)property).Value = (sbyte)Convert.ChangeType(prop.Value, typeof(sbyte));
+						break;
+					case "Int16Property":
+						((Int16PropertyData)property).Value = (short)Convert.ChangeType(prop.Value, typeof(short));
+						break;
+					case "IntProperty":
+						((IntPropertyData)property).Value = (int)Convert.ChangeType(prop.Value, typeof(int));
+						break;
+					case "Int64Property":
+						((Int64PropertyData)property).Value = (long)Convert.ChangeType(prop.Value, typeof(long));
+						break;
+					case "UInt16Property":
+						((UInt16PropertyData)property).Value = (ushort)Convert.ChangeType(prop.Value, typeof(ushort));
+						break;
+					case "UInt32Property":
+						((UInt32PropertyData)property).Value = (uint)Convert.ChangeType(prop.Value, typeof(uint));
+						break;
+					case "UInt64Property":
+						((UInt64PropertyData)property).Value = (ulong)Convert.ChangeType(prop.Value, typeof(ulong));
+						break;
+					case "NameProperty":
+						((NamePropertyData)property).Value = new FName(asset, (string)Convert.ChangeType(prop.Value, typeof(string)));
+						break;
+					case "StrProperty":
+						((StrPropertyData)property).Value = new FString((string)Convert.ChangeType(prop.Value, typeof(string)));
+						break;
+					case "InterfaceProperty":
+					case "ObjectProperty":
+						{
+							string assetPath = (string)((JValue)prop.Value).Value!;
+							string assetName = Path.GetFileName(assetPath);
+
+							Import firstLink = new Import(new FName(asset, "/Script/CoreUObject"), new FName(asset, "Package"), FPackageIndex.FromRawIndex(0), new FName(asset, assetPath), false);
+							FPackageIndex bigFirstLink = asset.AddImport(firstLink);
+							Import newLink = new Import(new FName(asset, "/Script/Engine"), new FName(asset, "BlueprintGeneratedClass"), bigFirstLink, new FName(asset, assetName + "_C"), false);
+							FPackageIndex bigNewLink = asset.AddImport(newLink);
+							Import newLink2 = new Import(new FName(asset, assetPath), new FName(asset, assetName + "_C"), bigFirstLink, new FName(asset, "Default__" + assetName + "_C"), false);
+							FPackageIndex bigNewLink2 = asset.AddImport(newLink2);
+
+							((ObjectPropertyData)property).Value = bigNewLink;
+						}
+						break;
+
+					// Non-trivial to implement. Add as needed.
+					case "ArrayProperty":
+					case "SetProperty":
+					case "MapProperty":
+					case "AssetObjectProperty":
+					case "SoftObjectProperty":
+					case "ByteProperty":
+					case "EnumProperty":
+					case "TextProperty":
+					case "DelegateProperty":
+					case "MulticastDelegateProperty":
+					case "StructProperty":
+						throw new NotImplementedException($"Actor patch property type '{prop.Type}' has not been implemented.");
+					default:
+						throw new NotSupportedException($"Unrecognized actor patch property type '{prop.Type}'.");
+				}
+			}
+		}
+
+		private static void IntegrateComponents(UAsset asset, IEnumerable<string> newComponents, int scsLocation, int classLocation, ref int scsNodeOffset, NormalExport defaultObjectExport)
+		{
 			FName coreUObjectName = new(asset, "/Script/CoreUObject");
 
 			int scsNodeLink = asset.SearchForImport(coreUObjectName, new FName(asset, "Class"), new FName(asset, "SCS_Node"));
@@ -148,7 +264,6 @@ namespace IcarusModManager.Core.Integrator
 				templateExport.Data = new List<PropertyData>();
 				asset.Exports.Add(templateExport);
 
-				NormalExport defaultObjectExport = (NormalExport)asset.Exports[defaultObjectLocation];
 				defaultObjectExport.SerializationBeforeSerializationDependencies.Add(FPackageIndex.FromRawIndex(asset.Exports.Count));
 
 				// Then the SCS_Node
@@ -161,30 +276,30 @@ namespace IcarusModManager.Core.Integrator
 				scsNodeExport.SerializationBeforeCreateDependencies.Add(FPackageIndex.FromRawIndex(scsNodeLink2));
 				scsNodeExport.CreateBeforeCreateDependencies.Add(FPackageIndex.FromRawIndex(scsLocation + 1));
 				scsNodeExport.Data = new List<PropertyData>
-				{
-					new ObjectPropertyData(new FName(asset, "ComponentClass"))
 					{
-						Value = bigNewLink
-					},
-					new ObjectPropertyData(new FName(asset, "ComponentTemplate"))
-					{
-						Value = FPackageIndex.FromRawIndex(asset.Exports.Count)
-					},
-					new StructPropertyData(new FName(asset, "VariableGuid"), new FName(asset, "Guid"))
-					{
-						Value = new List<PropertyData>
+						new ObjectPropertyData(new FName(asset, "ComponentClass"))
 						{
-							new GuidPropertyData(new FName(asset, "VariableGuid"))
+							Value = bigNewLink
+						},
+						new ObjectPropertyData(new FName(asset, "ComponentTemplate"))
+						{
+							Value = FPackageIndex.FromRawIndex(asset.Exports.Count)
+						},
+						new StructPropertyData(new FName(asset, "VariableGuid"), new FName(asset, "Guid"))
+						{
+							Value = new List<PropertyData>
 							{
-								Value = Guid.NewGuid()
+								new GuidPropertyData(new FName(asset, "VariableGuid"))
+								{
+									Value = Guid.NewGuid()
+								}
 							}
+						},
+						new NamePropertyData(new FName(asset, "InternalVariableName"))
+						{
+							Value = new FName(asset, component)
 						}
-					},
-					new NamePropertyData(new FName(asset, "InternalVariableName"))
-					{
-						Value = new FName(asset, component)
-					}
-				};
+					};
 				asset.Exports.Add(scsNodeExport);
 
 				// We update the BlueprintGeneratedClass data to include our new ActorComponent
