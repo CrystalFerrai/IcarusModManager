@@ -185,7 +185,7 @@ The following example alters the elecric deep ore mining drill, removing all add
 
 ### Actor Patch
 
-An actor patch allows you to add actor components to an actor blueprint. This provides an entry point for blueprint based mods to function. You add a custom component to an existing game actor, and it will be instantiated by the game whenever that actor type is instantiated. The file has the following format:
+An actor patch allows you to override property default values and add actor components to an actor blueprint. Components provide an entry point for blueprint based mods to function. You add a custom component to an existing game actor, and it will be instantiated by the game whenever that actor type is instantiated. The file has the following format:
 
 ```json
 {
@@ -194,6 +194,14 @@ An actor patch allows you to add actor components to an actor blueprint. This pr
   "target": "Icarus/Content/BP/Player/BP_IcarusPlayerControllerSurvival.uasset",
   "data":
   {
+	"properties":
+    [
+      {
+        "name": "SomeProperty",
+        "type": "IntProperty",
+        "value": 47
+      }
+    ],
     "components":
     [
       "/Game/Mods/TestMod/TestModComponent"
@@ -202,7 +210,7 @@ An actor patch allows you to add actor components to an actor blueprint. This pr
 }
 ```
 
-The example above adds a component called `TestModComponent` to the player controller actor. So each player will have an instance of the component running.
+The example above overrides the value a property named `SomeProperty`, setting it to 42. It also adds a component called `TestModComponent` to the player controller actor. So each player will have an instance of the component running.
 
 #### schema_version
 
@@ -215,6 +223,29 @@ Specifies the type of patch. Always “Actor” for actor patches.
 #### target
 
 The path to the asset that the patch should modify.
+
+#### data/properties
+
+An array of properties to override the default value of. The property name and type should match an existing property of the actor, and the value should be of the appropriate type.
+
+Property type names must match Unreal property types. Type names are case-sensitive. Only the following property types are currently supported. More may be added in the future if needed.
+ 
+* `BoolProperty`
+* `FloatProperty`
+* `DoubleProperty`
+* `Int8Property`
+* `Int16Property`
+* `IntProperty`
+* `Int64Property`
+* `UInt16Property`
+* `UInt32Property`
+* `UInt64Property`
+* `NameProperty`
+* `StrProperty`
+* `InterfaceProperty`
+* `ObjectProperty`
+
+> Note: When overriding an `ObjectProperty`, the value should be a full asset path. For example: `/Game/Mods/TestMod/TestModAsset`. Only blueprint classes are currently supported as values for `ObjectProperty`.
 
 #### data/components
 
